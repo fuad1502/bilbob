@@ -19,12 +19,20 @@ main {
 	align-items: center;
 }
 
-#login {
+#login, #signup {
 	flex: 1 20em;
 	background-color: white;
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
+}
+
+#login {
+	display: flex;
+}
+
+#signup {
+	display: none;
 }
 
 #welcome > div {
@@ -37,11 +45,16 @@ main {
 	padding: 1em;
 }
 
-#login ul {
+#signup > div {
+	font-size: 1.2em;
+	padding: 1em;
+}
+
+#login ul, #signup ul {
 	padding: 0;
 }
 
-#login li {
+#login li, #signup li {
 	list-style: none;
 	padding: 0.5em 0;
 }
@@ -52,18 +65,29 @@ main {
 	text-align: right;
 }
 
-#login input {
+#signup label {
+	display: inline-block;
+	width: 10em;
+	text-align: right;
+}
+
+#login input, #signup input {
 	font-size: 1em;
 	padding: 0.5em;
 }
 
-#login button {
+#login button, #signup button {
 	font-size: 1em;
 	padding: 0.5em 1em;
 	display: block;
 	margin: 0 auto;
 }
 
-#login p {
+#signup select {
+	font-size: 1em;
+	padding: 0.5em;
+}
+
+#login p, #signup p {
 	font-size: 0.8em;
 }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Bilbob: A Pet Social Media</title>
+	<link rel="stylesheet" href="styles.css">
+	<script src="scripts.js"></script>
+</head>
+
+<body>
+	<main>
+		<section id="welcome">
+			<div>
+				<h1>Bilbob: A Pet Social Media</h1>
+				<p>Share your pet's life with the world!</p>
+			</div>
+		</section>
+		<section id="login">
+			<div>
+				<h2>Meow!</h2>
+				<form action="login" method="get">
+					<ul>
+						<li>
+							<label for="username">Username:</label>
+							<input type="text" id="password" name="username"
+								pattern="^[\w_]+$"
+								title="Username can only contain letters, numbers, and underscores."
+								required>
+						</li>
+						<li>
+							<label for=" password">Password:</label>
+							<input type="password" id="password" name="password"
+								pattern="^(?=\S*\d)(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[^\w\s])\S{8,}$"
+								title="Password must be at least 8 characters long and contain at least one digit, one lowercase letter, one uppercase letter, and one special character."
+								required>
+						</li>
+					</ul>
+					<button type="submit">Log in</button>
+				</form>
+				<p>Don't have an account? <a href="#" onclick="return false">Sign up here!</a></p>
+			</div>
+		</section>
+	</main>
+</body>

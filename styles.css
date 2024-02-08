@@ -1,0 +1,69 @@
+body {
+	margin: 0;
+	padding: 0;
+	font-family: Arial, sans-serif;
+}
+
+main {
+	display: flex;
+	flex-wrap: wrap;
+	background-color: gray;
+	height: 100vh;
+}
+
+#welcome {
+	flex: 2 20em;
+	background-color: lightblue;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+#login {
+	flex: 1 20em;
+	background-color: white;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+#welcome > div {
+	font-size: 2em;
+	padding: 1em;
+}
+
+#login > div {
+	font-size: 1.5em;
+	padding: 1em;
+}
+
+#login ul {
+	padding: 0;
+}
+
+#login li {
+	list-style: none;
+	padding: 0.5em 0;
+}
+
+#login label {
+	display: inline-block;
+	width: 5em;
+	text-align: right;
+}
+
+#login input {
+	font-size: 1em;
+	padding: 0.5em;
+}
+
+#login button {
+	font-size: 1em;
+	padding: 0.5em 1em;
+	display: block;
+	margin: 0 auto;
+}
+
+#login p {
+	font-size: 0.8em;
+}

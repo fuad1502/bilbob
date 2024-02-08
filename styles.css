@@ -28,11 +28,11 @@ main {
 }
 
 #login {
-	display: flex;
+	display: none;
 }
 
 #signup {
-	display: none;
+	display: flex;
 }
 
 #welcome > div {
@@ -90,4 +90,18 @@ main {
 
 #login p, #signup p {
 	font-size: 0.8em;
+}
+
+.error {
+	font-size: 0.7em;
+	background-color: red;
+	color: white;
+	padding: 0em;
+}
+
+.error.active {
+	padding: 0.5em;
+	margin: 0 0.5em;
+	width: 10em;
+	position: absolute;
 }

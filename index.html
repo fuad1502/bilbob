@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<title>Bilbob: A Pet Social Media</title>
 	<link rel="stylesheet" href="styles.css">
-	<script src="scripts.js"></script>
+	<script src="scripts.js" defer></script>
 </head>
 
 <body>
@@ -22,7 +22,7 @@
 					<ul>
 						<li>
 							<label for="username">Username:</label>
-							<input type="text" id="password" name="username"
+							<input type="text" id="username" name="username"
 								pattern="^[\w_]+$"
 								title="Username can only contain letters, numbers, and underscores."
 								required>
@@ -47,7 +47,7 @@
 					<ul>
 						<li>
 							<label for="animal">What animal are you?</label>
-							<select id="animal">
+							<select name="animal" required>
 								<option value="dog">Cat</option>
 								<option value="cat">Dog</option>
 								<option value="bird">Bird</option>
@@ -57,27 +57,25 @@
 						</li>
 						<li>
 							<label for="name">Name:</label>
-							<input type="text" id="name" name="name" required>
+							<input type="text" name="name" pattern="^[a-zA-Z\s]+$" required>
+							<span class="error"></span>
 						</li>
 						<li>
 							<label for="username">Username:</label>
-							<input type="text" id="password" name="username"
-								pattern="^[\w_]+$"
-								title="Username can only contain letters, numbers, and underscores."
-								required>
-							<p class="error">Sorry, username already taken 😿</p>
+							<input type="text" name="username" pattern="^[\w_]+$" required>
+							<span class="error"></span>
 						</li>
 						<li>
 							<label for="password">Password:</label>
-							<input type="password" id="password" name="password"
+							<input type="password" name="password"
 								pattern="^(?=\S*\d)(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[^\w\s])\S{8,}$"
-								title="Password must be at least 8 characters long and contain at least one digit, one lowercase letter, one uppercase letter, and one special character."
 								required>
+							<span class="error"></span>
 						</li>
 						<li>
-							<label for="confirm">Confirm Password:</label>
-							<input type="password" id="confirm" name="confirm" required>
-							<p class="error">Passwords do not match 😿</p>
+							<label for="confirm_password">Confirm Password:</label>
+							<input type="password" name="confirm_password">
+							<span class="error"></span>
 						</li>
 					</ul>
 					<button type="submit">Sign up</button>

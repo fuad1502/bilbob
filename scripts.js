@@ -5,12 +5,14 @@ function showSignup() {
   document.getElementById('signup').style.display = 'flex';
   document.getElementById('login').style.display = 'none';
 }
+document.querySelector('#login a').addEventListener('click', showSignup);
 
 // Show the login form and hide the signup form.
 function showLogin() {
   document.getElementById('signup').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
 }
+document.querySelector('#signup a').addEventListener('click', showLogin);
 
 // Create a form handler for the signup form.
 const signupFormHandler = new FormHandler('signup');

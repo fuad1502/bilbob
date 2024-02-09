@@ -103,3 +103,15 @@ document.querySelector('#signup form').addEventListener('submit', function(event
     // TODO: Check if the username is already taken.
   }
 });
+
+// Create a form handler for the login form.
+const loginFormHandler = new FormHandler('login');
+loginFormHandler.addFormInput('username', 'Please input a username.', '');
+loginFormHandler.addFormInput('password', 'Please input a password.', '');
+
+// Handle login form submission.
+const login_username = document.querySelector('#login form input[name="username"]');
+const login_password = document.querySelector('#login form input[name="password"]');
+document.querySelector('#login form').addEventListener('submit', function(event) {
+  // TODO: Check if the username and password are correct.
+});

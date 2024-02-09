@@ -12,7 +12,7 @@ main {
 }
 
 #welcome {
-	flex: 2 20em;
+	flex: 10 20em;
 	background-color: lightblue;
 	display: flex;
 	justify-content: space-around;
@@ -20,7 +20,7 @@ main {
 }
 
 #login, #signup {
-	flex: 1 20em;
+	flex: 1 50em;
 	background-color: white;
 	display: flex;
 	justify-content: space-around;
@@ -28,11 +28,11 @@ main {
 }
 
 #login {
-	display: none;
+	display: flex;
 }
 
 #signup {
-	display: flex;
+	display: none;
 }
 
 #welcome > div {
@@ -102,6 +102,6 @@ main {
 .error.active {
 	padding: 0.5em;
 	margin: 0 0.5em;
-	width: 10em;
+	width: 8em;
 	position: absolute;
 }

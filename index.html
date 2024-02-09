@@ -22,17 +22,13 @@
 					<ul>
 						<li>
 							<label for="username">Username:</label>
-							<input type="text" id="username" name="username"
-								pattern="^[\w_]+$"
-								title="Username can only contain letters, numbers, and underscores."
-								required>
+							<input type="text" name="username" required>
+							<span class="error"></span>
 						</li>
 						<li>
 							<label for=" password">Password:</label>
-							<input type="password" id="password" name="password"
-								pattern="^(?=\S*\d)(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[^\w\s])\S{8,}$"
-								title="Password must be at least 8 characters long and contain at least one digit, one lowercase letter, one uppercase letter, and one special character."
-								required>
+							<input type="password" name="password" required>
+							<span class="error"></span>
 						</li>
 					</ul>
 					<button type="submit">Log in</button>

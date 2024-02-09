@@ -27,6 +27,15 @@ main {
 	align-items: center;
 }
 
+@media (max-width: 600px) {
+	#welcome {
+		font-size: 0.8em;
+	}
+	#login, #signup {
+		font-size: 0.7em;
+	}
+}
+
 #login {
 	display: flex;
 }

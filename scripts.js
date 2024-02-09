@@ -1,97 +1,105 @@
+class FormHandler {
+  constructor(sectionName) {
+    this.form = document.querySelector(`#${sectionName} form`);
+    this.sectionName = sectionName;
+    this.inputs = [];
+    this.errors = [];
+    this.valueMissingMessages = [];
+    this.patternMismatchMessages = [];
+    return this;
+  }
+
+  // Add an input to the form handler.
+  addFormInput(inputName, valueMissingMessage, patternMismatchMessage) {
+    let input = document.querySelector(`#${this.sectionName} form input[name="${inputName}"]`);
+    let error = document.querySelector(`#${this.sectionName} form input[name="${inputName}"] + span.error`);
+    this.inputs.push(input);
+    this.errors.push(error);
+    this.valueMissingMessages.push(valueMissingMessage);
+    this.patternMismatchMessages.push(patternMismatchMessage);
+    let formHandler = this;
+    let index = this.inputs.length - 1;
+    input.addEventListener('invalid', function(event) {formHandler.invalidHandler(index)});
+    input.addEventListener('input', function(event) {formHandler.inputHandler(index)});
+  }
+
+  // Clear the error message for the input at the given index once the input is valid.
+  inputHandler(inputIndex) {
+    let input = this.inputs[inputIndex];
+    let error = this.errors[inputIndex];
+    if (input.validity.valid) {
+      error.textContent = '';
+      error.className = 'error';
+    }
+  }
+
+  // Show the error message for the input at the given index.
+  invalidHandler(inputIndex) {
+    // If there is an error in the previous input, don't show the error in the current input.
+    if (!this.noErrorTillIndex(inputIndex - 1)) {
+      return;
+    }
+    // Clear all errors from the current input to the end.
+    this.clearErrorFromIndex(inputIndex + 1);
+    // Show the error in the current input.
+    let input = this.inputs[inputIndex];
+    let error = this.errors[inputIndex];
+    if (input.validity.valueMissing) {
+      error.textContent = this.valueMissingMessages[inputIndex];
+      error.className = 'error active';
+    } else if (input.validity.patternMismatch) {
+      error.textContent = this.patternMismatchMessages[inputIndex];
+      error.className = 'error active';
+    }
+  }
+
+  // Clear all errors from the given index to the end.
+  clearErrorFromIndex(index) {
+    for (let i = index; i < this.errors.length; i++) {
+      this.errors[i].textContent = '';
+      this.errors[i].className = 'error';
+    }
+  }
+
+  // Check if there is an error in any of the inputs from the start till the given index.
+  noErrorTillIndex(index) {
+    for (let i = 0; i <= index; i++) {
+      if (!this.inputs[i].validity.valid) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
+// Show the signup form and hide the login form.
 function showSignup() {
   document.getElementById('signup').style.display = 'flex';
   document.getElementById('login').style.display = 'none';
 }
 
+// Show the login form and hide the signup form.
 function showLogin() {
   document.getElementById('signup').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
 }
 
-// Handle name validation
-const signup_name = document.querySelector('#signup form input[name="name"]');
-const signup_name_error = document.querySelector('#signup form input[name="name"] + span.error');
+// Create a form handler for the signup form.
+const signupFormHandler = new FormHandler('signup');
+signupFormHandler.addFormInput('name', 'Please input your name.', 'Name can only contain letters and spaces.');
+signupFormHandler.addFormInput('username', 'Please input a username.', 'Username can only contain letters, numbers, and underscores.');
+signupFormHandler.addFormInput('password', 'Please input a password.', 'Password must be at least 8 characters long and contain at least one letter, one number, and one special character.');
 
-signup_name.addEventListener('input', function(event) {
-  if (signup_name.validity.valid) {
-    signup_name_error.textContent = '';
-    signup_name_error.className = 'error';
-  }
-});
-
-signup_name.addEventListener('invalid', function(event) {
-  if (signup_name.validity.valueMissing) {
-    signup_name_error.textContent = 'You need to enter a name.';
-    signup_name_error.className = 'error active';
-  } else if (signup_name.validity.patternMismatch) {
-    signup_name_error.textContent = 'Name can only contain letters and spaces.';
-    signup_name_error.className = 'error active';
-  } else {
-    signup_name_error.textContent = '';
-    signup_name_error.className = 'error';
-  }
-});
-
-// Handle username validation
-const signup_username = document.querySelector('#signup form input[name="username"]');
-const signup_username_error = document.querySelector('#signup form input[name="username"] + span.error');
-
-signup_username.addEventListener('input', function(event) {
-  if (signup_username.validity.valid) {
-    signup_username_error.textContent = '';
-    signup_username_error.className = 'error';
-  }
-});
-
-signup_username.addEventListener('invalid', function(event) {
-  if (signup_username.validity.valueMissing) {
-    signup_username_error.textContent = 'You need to enter a username.';
-    signup_username_error.className = 'error active';
-  } else if (signup_username.validity.patternMismatch) {
-    signup_username_error.textContent = 'Username can only contain letters and numbers.';
-    signup_username_error.className = 'error active';
-  } else {
-    signup_username_error.textContent = '';
-    signup_username_error.className = 'error';
-  }
-});
-
-// Handle password validation
-const signup_password = document.querySelector('#signup form input[name="password"]');
-const signup_password_error = document.querySelector('#signup form input[name="password"] + span.error');
-
-signup_password.addEventListener('input', function(event) {
-  if (signup_password.validity.valid) {
-    signup_password_error.textContent = '';
-    signup_password_error.className = 'error';
-  }
-});
-
-signup_password.addEventListener('invalid', function(event) {
-  if (signup_password.validity.valueMissing) {
-    signup_password_error.textContent = 'You need to enter a password.';
-    signup_password_error.className = 'error active';
-  } else if (signup_password.validity.patternMismatch) {
-    signup_password_error.textContent = 'Password must be at least 8 characters long and contains a lowercase letter, an uppercase letter, a number, and a special character.';
-    signup_password_error.className = 'error active';
-  } else {
-    signup_password_error.textContent = '';
-    signup_password_error.className = 'error';
-  }
-});
-
-const signup_form = document.querySelector('#signup form');
-const confirm_password = document.querySelector('#signup form input[name="confirm_password"]');
-const confirm_password_error = document.querySelector('#signup form input[name="confirm_password"] + span.error');
-
-// Handle password confirmation before submitting the form
-signup_form.addEventListener('submit', function(event) {
-  if (signup_password.value !== confirm_password.value) {
-    confirm_password_error.textContent = 'Passwords do not match.';
-    confirm_password_error.className = 'error active';
+// Handle signup form submission.
+const password = document.querySelector('#signup form input[name="password"]');
+const confirmPassword = document.querySelector('#signup form input[name="confirm-password"]');
+const confirmPasswordError = document.querySelector('#signup form input[name="confirm-password"] + span.error');
+document.querySelector('#signup form').addEventListener('submit', function(event) {
+  if (password.value !== confirmPassword.value) {
     event.preventDefault();
+    confirmPasswordError.textContent = 'Passwords do not match.';
   } else {
-    confirm_password_error.textContent = '';
-    confirm_password_error.className = 'error';
+    confirmPasswordError.textContent = '';
+    // TODO: Check if the username is already taken.
   }
 });

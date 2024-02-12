@@ -9,6 +9,7 @@ import (
 	"sync"
 )
 
+// SafeDB is a wrapper around sql.DB that provides a mutex to make it safe for concurrent use
 type SafeDB struct {
 	mu sync.Mutex
 	db *sql.DB
@@ -59,8 +60,12 @@ func main() {
 	// Create a new SafeDB
 	safeDB := &SafeDB{db: db}
 
+	// Create a new router
 	router := gin.Default()
+	// Use the CORS middleware
 	router.Use(CORSMiddleware())
+	// Add the login route
 	router.GET("/login", checkLogin(safeDB))
+	// Run the server
 	router.Run(":8080")
 }

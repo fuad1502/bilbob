@@ -1,5 +1,7 @@
 import FormHandler from './form-handler.js';
 
+const api = 'http://localhost:8081';
+
 // Show the signup form and hide the login form.
 function showSignup() {
   document.getElementById('signup').style.display = 'flex';
@@ -27,7 +29,7 @@ const confirmPasswordError = document.querySelector('#signup form input[name="co
 const username = document.querySelector('#signup form input[name="username"]');
 const name = document.querySelector('#signup form input[name="name"]');
 const animal = document.querySelector('#signup form select[name="animal"]');
-document.querySelector('#signup form').addEventListener('submit', function(event) {
+document.querySelector('#signup form').addEventListener('submit', async function(event) {
   event.preventDefault();
 
   // Check if the passwords match.
@@ -37,27 +39,40 @@ document.querySelector('#signup form').addEventListener('submit', function(event
   }
   confirmPasswordError.textContent = '';
 
-  // TODO: Check if the username is already taken.
+  // Check if the username is already taken.
+  let url = api + '/users/' + username.value;
+  let response = await fetch(url);
+  if (response.status != 200) {
+    // TODO: Display internal server error
+    return;
+  }
+  let responseBody = await response.json();
+  if (responseBody.exists) {
+    signupFormHandler.setErrorMessage('username', 'Sorry, username is not available');
+    return;
+  }
 
   // Register the user through the API.
-  const body = JSON.stringify({username: username.value, password: password.value, name: name.value, animal: animal.value});
-  fetch('http://localhost:8081/users', {
+  url = api + '/users';
+  let requestBody = JSON.stringify({username: username.value, password: password.value, name: name.value, animal: animal.value});
+  response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body
-  }).then(response => {
-    if (response.status === 201) {
-      // Redirect to the login page.
-      showLogin();
-      // TODO: Display a success message.
-      console.log('User account created successfully.');
-    } else {
-      // TODO: Display an error message.
-      console.log('Failed to create user account.');
-    }
+    body: requestBody
   });
+
+  // Check API call response
+  if (response.status === 201) {
+    // Redirect to the login page.
+    showLogin();
+    // TODO: Display a success message.
+    console.log('User account created successfully.');
+  } else {
+    // TODO: Display an error message.
+    console.log('Failed to create user account.');
+  }
 });
 
 // Create a form handler for the login form.

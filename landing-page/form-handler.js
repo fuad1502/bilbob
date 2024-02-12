@@ -2,6 +2,7 @@ export default class FormHandler {
   constructor(sectionName) {
     this.form = document.querySelector(`#${sectionName} form`);
     this.sectionName = sectionName;
+    this.inputNames = [];
     this.inputs = [];
     this.errors = [];
     this.valueMissingMessages = [];
@@ -11,6 +12,7 @@ export default class FormHandler {
 
   // Add an input to the form handler.
   addFormInput(inputName, valueMissingMessage, patternMismatchMessage) {
+    this.inputNames.push(inputName);
     let input = document.querySelector(`#${this.sectionName} form input[name="${inputName}"]`);
     let error = document.querySelector(`#${this.sectionName} form input[name="${inputName}"] + span.error`);
     this.inputs.push(input);
@@ -69,6 +71,15 @@ export default class FormHandler {
       }
     }
     return true;
+  }
+
+  setErrorMessage(inputName, errorMessage) {
+    let index = this.inputNames.indexOf(inputName);
+    if (index == -1) {
+      return;
+    }
+    this.errors[index].textContent = errorMessage;
+    this.errors[index].className = 'error active';
   }
 }
 

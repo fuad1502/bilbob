@@ -35,13 +35,13 @@ func checkUser(safeDB *SafeDB) gin.HandlerFunc {
 		row := stmt.QueryRow(username)
 		if err := row.Scan(&username); err != nil {
 			if err == sql.ErrNoRows {
-				c.JSON(http.StatusOK, gin.H{"result": "user does not exist"})
+				c.JSON(http.StatusOK, gin.H{"exists": false})
 			} else {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			}
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"result": "user exists"})
+		c.JSON(http.StatusOK, gin.H{"exists": true})
 	}
 }
 

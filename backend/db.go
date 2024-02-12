@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"log"
+	"fmt"
 	"sync"
 )
 
@@ -13,9 +13,9 @@ type SafeDB struct {
 	db *sql.DB
 }
 
-func ConnectDB() (*SafeDB, error) {
-	log.Println("Connecting to the database...")
-	connStr := "host=data user=postgres password=secret dbname=postgres sslmode=disable"
+// ConnectDB connects to a Postgres database and checks if the connection is working and returns a SafeDB struct pointer if successful
+func ConnectPGDB(host string, user string, password string, dbname string) (*SafeDB, error) {
+	connStr := fmt.Sprintf("host=%v user=%v password=%v dbname=%v sslmode=disable", host, user, password, dbname)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, errors.New("Failed to connect to the database: " + err.Error())

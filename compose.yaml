@@ -13,6 +13,11 @@ services:
       dockerfile: api.Dockerfile
     ports:
       - 127.0.0.1:8081:8080
+    environment:
+      - DB_HOST=data
+      - DB_USER=postgres
+      - DB_PASSWORD=secret
+      - DB_NAME=postgres
     working_dir: /go/bin
     command: sh -c "sleep 3 && ./api"
     stop_grace_period: 1s

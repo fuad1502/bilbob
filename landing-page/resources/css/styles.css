@@ -114,3 +114,27 @@ main {
 	width: 8em;
 	position: absolute;
 }
+
+/* floating message */
+#floating-message {
+	width: 15em;
+	text-align: center;
+	position: fixed;
+	top: 1em;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+#floating-message.success {
+	background-color: lightgreen;
+	color: black;
+	padding: 1em;
+	border: solid black;
+}
+
+#floating-message.error {
+	background-color: red;
+	color: white;
+	padding: 1em;
+	border: solid black;
+}

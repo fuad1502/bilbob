@@ -1,5 +1,6 @@
 import FormHandler from './form-handler.js';
 import {checkUsernameExists, registerUser} from './api-calls.js';
+import { setFloatingMessageError, setFloatingMessageSuccess } from './floating-message.js';
 
 // Show the signup form and hide the login form.
 function showSignup() {
@@ -41,7 +42,7 @@ document.querySelector('#signup form').addEventListener('submit', async function
   // Check if the username is already taken.
   let [exists, status] = await checkUsernameExists(username.value);
   if (status != 200) {
-    // TODO: Display internal server error
+    setFloatingMessageError('Internal server error');
     return;
   }
   if (exists) {
@@ -52,13 +53,10 @@ document.querySelector('#signup form').addEventListener('submit', async function
   // Register the user through the API.
   status = await registerUser({username: username.value, password: password.value, name: name.value, animal: animal.value});
   if (status === 201) {
-    // Redirect to the login page.
     showLogin();
-    // TODO: Display a success message.
-    console.log('User account created successfully.');
+    setFloatingMessageSuccess('User account created successfully!');
   } else {
-    // TODO: Display an error message.
-    console.log('Failed to create user account.');
+    setFloatingMessageError('Internal server error');
   }
 });
 

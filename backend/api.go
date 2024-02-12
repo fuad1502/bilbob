@@ -6,14 +6,7 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
-	"sync"
 )
-
-// SafeDB is a wrapper around sql.DB that provides a mutex to make it safe for concurrent use
-type SafeDB struct {
-	mu sync.Mutex
-	db *sql.DB
-}
 
 type UserSignup struct {
 	Username string `json:"username" binding:"required"`
@@ -105,33 +98,20 @@ func addUser(safeDB *SafeDB) gin.HandlerFunc {
 func main() {
 	log.SetPrefix("[Bilbob API]: ")
 
-	// Connect to the "postgres" database
-	log.Println("Connecting to the database...")
-	connStr := "host=data user=postgres password=secret dbname=postgres sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
+	// Connect to the database
+	safeDB, err := ConnectDB()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
-
-	// Check if the connection is working
-	log.Println("Pinging the database...")
-	if err := db.Ping(); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Connected to the database")
-
-	// Create a new SafeDB
-	safeDB := &SafeDB{db: db}
+	defer safeDB.db.Close()
 
 	// Create a new router
 	router := gin.Default()
 
-	// Use the CORS middleware
+	// Add CORS middleware
 	router.Use(CORSMiddleware())
 
-	// Add the users route
+	// Add users route
 	router.GET("/users/:username", checkUser(safeDB))
 	router.POST("/users", addUser(safeDB))
 

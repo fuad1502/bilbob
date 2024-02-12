@@ -9,7 +9,7 @@ const api = 'http://localhost:8081';
  * @return {Promise<[boolean, number]>} [exists, HTTP response status] Promise. Ignore exists if HTTP response status is not 200.
  */
 export async function checkUsernameExists(username) {
-  const url = api + '/users/' + username;
+  const url = api + '/users/' + username + '/exists';
   const response = await fetch(url);
   if (response.status != 200) {
     return [false, response.status];

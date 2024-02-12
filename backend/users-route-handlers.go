@@ -14,9 +14,33 @@ type UserSignup struct {
 	Animal   string `json:"animal" binding:"required"`
 }
 
+func userExistsHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
+	safeDB.mu.Lock()
+	defer safeDB.mu.Unlock()
+
+	// Get the username from the URL
+	username := c.Param("username")
+
+	// Query the database for the user
+	row := stmt.QueryRow(username)
+	if err := row.Scan(&username); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusOK, gin.H{"exists": false})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"exists": true})
+}
+
+func userLoginHandler(safeDB *SafeDB, c *gin.Context) {
+
+}
+
 // checkUser is a handler that checks if a user exists in the database
-func checkUser(safeDB *SafeDB) gin.HandlerFunc {
-	// Prepare SQL statemtn for checking if a user exists
+func createUserActionHandler(safeDB *SafeDB) gin.HandlerFunc {
+	// Prepare SQL statement for checking if a user exists
 	safeDB.mu.Lock()
 	defer safeDB.mu.Unlock()
 	stmt, err := safeDB.db.Prepare("SELECT username FROM Users WHERE username = $1")
@@ -25,28 +49,17 @@ func checkUser(safeDB *SafeDB) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
-		safeDB.mu.Lock()
-		defer safeDB.mu.Unlock()
-
-		// Get the username from the URL
-		username := c.Param("username")
-
-		// Query the database for the user
-		row := stmt.QueryRow(username)
-		if err := row.Scan(&username); err != nil {
-			if err == sql.ErrNoRows {
-				c.JSON(http.StatusOK, gin.H{"exists": false})
-			} else {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			}
-			return
+		action := c.Param("action")
+		if action == "exists" {
+			userExistsHandler(safeDB, c, stmt)
+		} else if action == "login" {
+			userLoginHandler(safeDB, c)
 		}
-		c.JSON(http.StatusOK, gin.H{"exists": true})
 	}
 }
 
-// addUser is a handler that adds a user to the database
-func addUser(safeDB *SafeDB) gin.HandlerFunc {
+// createPostUserHandler is a handler that adds a user to the database
+func createPostUserHandler(safeDB *SafeDB) gin.HandlerFunc {
 	// Prepare SQL statement for adding a user
 	safeDB.mu.Lock()
 	defer safeDB.mu.Unlock()

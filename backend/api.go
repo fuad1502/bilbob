@@ -26,8 +26,8 @@ func main() {
 	router.Use(CORSMiddleware())
 
 	// Add users route
-	router.GET("/users/:username", checkUser(safeDB))
-	router.POST("/users", addUser(safeDB))
+	router.GET("/users/:username/:action", createUserActionHandler(safeDB))
+	router.POST("/users", createPostUserHandler(safeDB))
 
 	// Run the server
 	log.Println("Web service running")

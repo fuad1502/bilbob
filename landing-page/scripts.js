@@ -24,14 +24,40 @@ signupFormHandler.addFormInput('password', 'Please input a password.', 'Password
 const password = document.querySelector('#signup form input[name="password"]');
 const confirmPassword = document.querySelector('#signup form input[name="confirm-password"]');
 const confirmPasswordError = document.querySelector('#signup form input[name="confirm-password"] + span.error');
+const username = document.querySelector('#signup form input[name="username"]');
+const name = document.querySelector('#signup form input[name="name"]');
+const animal = document.querySelector('#signup form select[name="animal"]');
 document.querySelector('#signup form').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  // Check if the passwords match.
   if (password.value !== confirmPassword.value) {
-    event.preventDefault();
     confirmPasswordError.textContent = 'Passwords do not match.';
-  } else {
-    confirmPasswordError.textContent = '';
-    // TODO: Check if the username is already taken.
+    return;
   }
+  confirmPasswordError.textContent = '';
+
+  // TODO: Check if the username is already taken.
+
+  // Register the user through the API.
+  const body = JSON.stringify({username: username.value, password: password.value, name: name.value, animal: animal.value});
+  fetch('http://localhost:8081/users', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body
+  }).then(response => {
+    if (response.status === 201) {
+      // Redirect to the login page.
+      showLogin();
+      // TODO: Display a success message.
+      console.log('User account created successfully.');
+    } else {
+      // TODO: Display an error message.
+      console.log('Failed to create user account.');
+    }
+  });
 });
 
 // Create a form handler for the login form.

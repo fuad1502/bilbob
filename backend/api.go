@@ -15,6 +15,13 @@ type SafeDB struct {
 	db *sql.DB
 }
 
+type UserSignup struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Name     string `json:"name" binding:"required"`
+	Animal   string `json:"animal" binding:"required"`
+}
+
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -31,9 +38,67 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-func checkLogin(safeDB *SafeDB) gin.HandlerFunc {
+// checkUser is a handler that checks if a user exists in the database
+func checkUser(safeDB *SafeDB) gin.HandlerFunc {
+	// Prepare SQL statemtn for checking if a user exists
+	safeDB.mu.Lock()
+	defer safeDB.mu.Unlock()
+	stmt, err := safeDB.db.Prepare("SELECT username FROM Users WHERE username = $1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"result": "success"})
+		safeDB.mu.Lock()
+		defer safeDB.mu.Unlock()
+
+		// Get the username from the URL
+		username := c.Param("username")
+
+		// Query the database for the user
+		row := stmt.QueryRow(username)
+		if err := row.Scan(&username); err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusOK, gin.H{"result": "user does not exist"})
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			}
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"result": "user exists"})
+	}
+}
+
+// addUser is a handler that adds a user to the database
+func addUser(safeDB *SafeDB) gin.HandlerFunc {
+	// Prepare SQL statement for adding a user
+	safeDB.mu.Lock()
+	defer safeDB.mu.Unlock()
+	stmt, err := safeDB.db.Prepare("INSERT INTO Users (username, password, name, animal) VALUES ($1, $2, $3, $4)")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return func(c *gin.Context) {
+		safeDB.mu.Lock()
+		defer safeDB.mu.Unlock()
+
+		// Bind JSON payload to UserSignup struct
+		var user UserSignup
+		if err := c.BindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// TODO: Hash the password
+
+		// Insert the user into the database
+		if _, err = stmt.Exec(user.Username, user.Password, user.Name, user.Animal); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{"result": "success"})
 	}
 }
 
@@ -47,12 +112,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
 	// Check if the connection is working
 	log.Println("Pinging the database...")
-	pingErr := db.Ping()
-	if pingErr != nil {
-		log.Fatal(pingErr)
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
 	}
 
 	log.Println("Connected to the database")
@@ -62,10 +127,14 @@ func main() {
 
 	// Create a new router
 	router := gin.Default()
+
 	// Use the CORS middleware
 	router.Use(CORSMiddleware())
-	// Add the login route
-	router.GET("/login", checkLogin(safeDB))
+
+	// Add the users route
+	router.GET("/users/:username", checkUser(safeDB))
+	router.POST("/users", addUser(safeDB))
+
 	// Run the server
 	router.Run(":8080")
 }

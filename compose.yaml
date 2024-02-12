@@ -1,0 +1,28 @@
+services:
+  data:
+    image: bilbob-data
+    build:
+      context: backend
+      dockerfile: data.Dockerfile
+    environment:
+      POSTGRES_PASSWORD=secret
+  api:
+    image: bilbob-api
+    build:
+      context: backend
+      dockerfile: api.Dockerfile
+    ports:
+      - 127.0.0.1:8081:8080
+    working_dir: /go/bin
+    command: sh -c "sleep 3 && ./api"
+    stop_grace_period: 1s
+  landing-page:
+    image: bilbob-landing-page
+    build:
+      context: landing-page
+      dockerfile: web-server.Dockerfile
+    ports:
+      - 127.0.0.1:8080:8080
+    working_dir: /go/bin
+    command: sh -c "sleep 4 && ./web-server"
+    stop_grace_period: 1s

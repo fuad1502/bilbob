@@ -28,6 +28,8 @@ services:
       dockerfile: web-server.Dockerfile
     ports:
       - 127.0.0.1:8080:8080
+    volumes:
+      - ./landing-page/resources:/go/bin/resources
     working_dir: /go/bin
     command: sh -c "sleep 4 && ./web-server"
     stop_grace_period: 1s

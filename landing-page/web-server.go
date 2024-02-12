@@ -8,28 +8,39 @@ import (
 	"regexp"
 )
 
-func loadFile(filename string) (string, error) {
-	content, err := os.ReadFile(filename)
+func loadFile(filename string) (string, string, error) {
+	ext, err := getExtension(filename)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return string(content), nil
+	mimeType, err := getMimeType(ext)
+	if err != nil {
+		return "", "", err
+	}
+	filePath := "resources/" + ext + "/" + filename
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", "", err
+	}
+	return string(content), mimeType, nil
 }
 
-func getMimeType(filename string) (string, error) {
-	// Use regex to get the file extension
+func getExtension(filename string) (string, error) {
 	re := regexp.MustCompile(`[\w-_]+[.]([\w-_]+)`)
-	extension := re.FindStringSubmatch(filename)
-	if len(extension) < 2 {
+	sm := re.FindStringSubmatch(filename)
+	if len(sm) < 2 {
 		return "", fmt.Errorf("Invalid file extension")
 	}
-	// Map the file extension to the mime type
-	if extension[1] == "html" || extension[1] == "css" {
-		return fmt.Sprintf("text/%s", extension[1]), nil
-	} else if extension[1] == "js" {
+	return sm[1], nil
+}
+
+func getMimeType(ext string) (string, error) {
+	if ext == "html" || ext == "css" {
+		return fmt.Sprintf("text/%s", ext), nil
+	} else if ext == "js" {
 		return "application/javascript", nil
 	}
-	return "", fmt.Errorf("Invalid file extension")
+	return "", fmt.Errorf("Unsupported file extension")
 }
 
 func landingPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -38,26 +49,23 @@ func landingPageHandler(w http.ResponseWriter, r *http.Request) {
 	if fileName == "" {
 		fileName = "index.html"
 	}
-	// Validate the file name and get the mime type
-	mimeType, err := getMimeType(fileName)
+	// Load the file and get the mime type
+	content, mimeType, err := loadFile(fileName)
 	if err != nil {
-		http.Error(w, "File not found", http.StatusNotFound)
-		return
-	}
-	// Load the file content
-	content, err := loadFile(fileName)
-	if err != nil {
-		http.Error(w, "File not found", http.StatusNotFound)
+		http.Error(w, "", http.StatusNotFound)
+		log.Printf("Unable to serve %v: %v", fileName, err)
 		return
 	}
 	// Set the content type header
 	w.Header().Add("Content-Type", mimeType)
 	// Write the content to the response writer
 	fmt.Fprint(w, content)
+	log.Printf("Served %v!\n", fileName)
 }
 
 func main() {
+	log.SetPrefix("[Bilbob WebServer]: ")
 	http.HandleFunc("/", landingPageHandler)
-	fmt.Println("Bilbob Web Server is running on port 8080! 🐱")
+	log.Println("Bilbob Web Server is running on port 8080! 🐱")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

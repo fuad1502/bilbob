@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"github.com/fuad1502/bilbob-backend/password"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -80,9 +81,15 @@ func createPostUserHandler(safeDB *SafeDB) gin.HandlerFunc {
 		}
 
 		// TODO: Hash the password
+		hashedPassword, err := password.HashPassword(user.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, nil)
+			log.Printf("createPostUserHandler: %v\n", err)
+			return
+		}
 
 		// Insert the user into the database
-		if _, err = stmt.Exec(user.Username, user.Password, user.Name, user.Animal); err != nil {
+		if _, err = stmt.Exec(user.Username, hashedPassword, user.Name, user.Animal); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}

@@ -1,5 +1,5 @@
 import FormHandler from './form-handler.js';
-import {checkUsernameExists, registerUser} from './api-calls.js';
+import { checkUsernameExists, registerUser, verifyUser } from './api-calls.js';
 import { setFloatingMessageError, setFloatingMessageSuccess } from './floating-message.js';
 
 // Show the signup form and hide the login form.
@@ -68,6 +68,17 @@ loginFormHandler.addFormInput('password', 'Please input a password.', '');
 // Handle login form submission.
 const login_username = document.querySelector('#login form input[name="username"]');
 const login_password = document.querySelector('#login form input[name="password"]');
-document.querySelector('#login form').addEventListener('submit', function(event) {
+document.querySelector('#login form').addEventListener('submit', async function(event) {
+  event.preventDefault();
   // TODO: Check if the username and password are correct.
+  const [verified, status] = await verifyUser({username: login_username.value, password: login_password.value});
+  if (status == 500) {
+    setFloatingMessageError('Internal server error');
+    return;
+  }
+  if (status != 200 || !verified) {
+    setFloatingMessageError('Invalid username or password');
+    return;
+  }
+  setFloatingMessageSuccess('Login successful');
 });

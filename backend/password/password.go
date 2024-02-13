@@ -7,9 +7,12 @@ import (
 	"math/big"
 )
 
-func getSalt(nBytes uint32) ([]byte, error) {
-	salt := make([]byte, nBytes)
-	for i := 0; i < int(nBytes); i += 1 {
+const SaltSize = 16
+const KeySize = 16
+
+func GenerateSalt() ([]byte, error) {
+	salt := make([]byte, SaltSize)
+	for i := 0; i < int(SaltSize); i += 1 {
 		t, err := rand.Int(rand.Reader, big.NewInt(256))
 		if err != nil {
 			return nil, err
@@ -19,10 +22,7 @@ func getSalt(nBytes uint32) ([]byte, error) {
 	return salt, nil
 }
 
-func HashPassword(password string) (string, error) {
-	salt, err := getSalt(16)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(argon2.IDKey([]byte(password), salt, 2, 15*1024, 1, 16)), nil
+func HashPassword(password string, salt []byte) string {
+	hashString := hex.EncodeToString(argon2.IDKey([]byte(password), salt, 2, 15*1024, 1, KeySize))
+	return hashString
 }

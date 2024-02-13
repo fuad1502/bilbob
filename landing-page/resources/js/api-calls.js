@@ -34,3 +34,17 @@ export async function registerUser(user) {
   });
   return response.status; 
 }
+
+/** Checks if the username and password combination exists in the database
+ * @param {{String, String}} user{username, password}
+ * @return {Promise<[boolean, number]>} [verified, HTTP response status] Promise. Ignore verified if HTTP response status is not 200.
+ */
+export async function verifyUser(user) {
+  const url = api + '/users/' + user.username + '/login?password=' + user.password;
+  const response = await fetch(url);
+  if (response.status != 200) {
+    return [false, response.status];
+  }
+  const responseBody = await response.json();
+  return [responseBody.verified, response.status];
+}

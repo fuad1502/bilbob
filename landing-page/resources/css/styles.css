@@ -101,14 +101,14 @@ main {
 	font-size: 0.8em;
 }
 
-.error {
+span.error {
 	font-size: 0.7em;
 	background-color: red;
 	color: white;
 	padding: 0em;
 }
 
-.error.active {
+span.error.active {
 	padding: 0.5em;
 	margin: 0 0.5em;
 	width: 8em;
@@ -136,5 +136,5 @@ main {
 	background-color: red;
 	color: white;
 	padding: 1em;
-	border: solid black;
+	border: solid white;
 }

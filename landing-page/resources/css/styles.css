@@ -133,8 +133,8 @@ span.error.active {
 }
 
 #floating-message.error {
-	background-color: red;
-	color: white;
+	background-color: lightcoral;
+	color: black;
 	padding: 1em;
-	border: solid white;
+	border: solid black;
 }

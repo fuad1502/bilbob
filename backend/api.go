@@ -25,6 +25,9 @@ func main() {
 	// Add CORS middleware
 	router.Use(CORSMiddleware())
 
+	// Add error middleware
+	router.Use(ErrorMiddleware())
+
 	// Add users route
 	router.GET("/users/:username/:action", createUserActionHandler(safeDB))
 	router.POST("/users", createPostUserHandler(safeDB))

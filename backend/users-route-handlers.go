@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/fuad1502/bilbob-backend/errors"
 	"github.com/fuad1502/bilbob-backend/password"
 	"github.com/gin-gonic/gin"
 )
@@ -28,10 +29,11 @@ func userExistsHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	if err := row.Scan(&username); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, gin.H{"exists": false})
+			return
 		} else {
-			c.JSON(http.StatusInternalServerError, nil)
+			c.Error(errors.New(err, c, "userExistsHandler"))
+			return
 		}
-		return
 	}
 	c.JSON(http.StatusOK, gin.H{"exists": true})
 }
@@ -48,11 +50,11 @@ func userLoginHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	if err := row.Scan(&saltAndHash); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, gin.H{"verified": false})
+			return
 		} else {
-			c.JSON(http.StatusInternalServerError, nil)
-			log.Printf("userLoginHandler: %v\n", err)
+			c.Error(errors.New(err, c, "userLoginHandler"))
+			return
 		}
-		return
 	}
 
 	// Get the submitted password from the URL
@@ -64,8 +66,7 @@ func userLoginHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	storedHash := saltAndHash[password.SaltSize*2:]
 	saltBytes, err := hex.DecodeString(salt)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, nil)
-		log.Printf("userLoginHandler: %v\n", err)
+		c.Error(errors.New(err, c, "userLoginHandler"))
 		return
 	}
 	computedHash := password.HashPassword(submittedPassword, saltBytes)
@@ -126,8 +127,7 @@ func createPostUserHandler(safeDB *SafeDB) gin.HandlerFunc {
 		// Hash the password
 		salt, err := password.GenerateSalt()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, nil)
-			log.Printf("createPostUserHandler: %v\n", err)
+			c.Error(errors.New(err, c, "createPostUserHandler"))
 			return
 		}
 		hashedPassword := password.HashPassword(user.Password, salt)
@@ -136,9 +136,7 @@ func createPostUserHandler(safeDB *SafeDB) gin.HandlerFunc {
 		safeDB.mu.Lock()
 		defer safeDB.mu.Unlock()
 		if _, err = stmt.Exec(user.Username, hex.EncodeToString(salt)+hashedPassword, user.Name, user.Animal); err != nil {
-			// TODO: Encapsulate internal server error handling
-			c.JSON(http.StatusInternalServerError, nil)
-			log.Printf("createPostUserHandler: %v\n", err)
+			c.Error(errors.New(err, c, "createPostUserHandler"))
 			return
 		}
 

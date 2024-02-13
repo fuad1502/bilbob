@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"database/sql"
@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/fuad1502/bilbob-backend/dbs"
 	"github.com/fuad1502/bilbob-backend/errors"
-	"github.com/fuad1502/bilbob-backend/password"
+	"github.com/fuad1502/bilbob-backend/passwords"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,13 +19,13 @@ type UserSignup struct {
 	Animal   string `json:"animal" binding:"required"`
 }
 
-func userExistsHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
+func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	// Get the username from the URL
 	username := c.Param("username")
 
 	// Query the database for the user
-	safeDB.mu.Lock()
-	defer safeDB.mu.Unlock()
+	safeDB.Lock.Lock()
+	defer safeDB.Lock.Unlock()
 	row := stmt.QueryRow(username)
 	if err := row.Scan(&username); err != nil {
 		if err == sql.ErrNoRows {
@@ -38,13 +39,13 @@ func userExistsHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	c.JSON(http.StatusOK, gin.H{"exists": true})
 }
 
-func userLoginHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
+func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	// Get the username from the URL
 	username := c.Param("username")
 
 	// Query the database for the user
-	safeDB.mu.Lock()
-	defer safeDB.mu.Unlock()
+	safeDB.Lock.Lock()
+	defer safeDB.Lock.Unlock()
 	var saltAndHash string
 	row := stmt.QueryRow(username)
 	if err := row.Scan(&saltAndHash); err != nil {
@@ -62,14 +63,14 @@ func userLoginHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
 
 	// Hash password with salt and compare with stored hash
 	// TODO: Encapsulate the following logic into a function
-	salt := saltAndHash[:password.SaltSize*2]
-	storedHash := saltAndHash[password.SaltSize*2:]
+	salt := saltAndHash[:passwords.SaltSize*2]
+	storedHash := saltAndHash[passwords.SaltSize*2:]
 	saltBytes, err := hex.DecodeString(salt)
 	if err != nil {
 		c.Error(errors.New(err, c, "userLoginHandler"))
 		return
 	}
-	computedHash := password.HashPassword(submittedPassword, saltBytes)
+	computedHash := passwords.HashPassword(submittedPassword, saltBytes)
 	if computedHash == storedHash {
 		c.JSON(http.StatusOK, gin.H{"verified": true})
 	} else {
@@ -77,18 +78,17 @@ func userLoginHandler(safeDB *SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	}
 }
 
-// checkUser is a handler that checks if a user exists in the database
-func createUserActionHandler(safeDB *SafeDB) gin.HandlerFunc {
+func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	// Prepare SQL statement for checking if a user exists
-	safeDB.mu.Lock()
-	defer safeDB.mu.Unlock()
-	stmt1, err := safeDB.db.Prepare("SELECT username FROM Users WHERE username = $1")
+	safeDB.Lock.Lock()
+	defer safeDB.Lock.Unlock()
+	stmt1, err := safeDB.DB.Prepare("SELECT username FROM Users WHERE username = $1")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Prepare SQL statement for checking password hash
-	stmt2, err := safeDB.db.Prepare("SELECT password FROM Users WHERE username = $1")
+	stmt2, err := safeDB.DB.Prepare("SELECT password FROM Users WHERE username = $1")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -106,12 +106,11 @@ func createUserActionHandler(safeDB *SafeDB) gin.HandlerFunc {
 	}
 }
 
-// createPostUserHandler is a handler that adds a user to the database
-func createPostUserHandler(safeDB *SafeDB) gin.HandlerFunc {
+func CreatePostUserHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	// Prepare SQL statement for adding a user
-	safeDB.mu.Lock()
-	defer safeDB.mu.Unlock()
-	stmt, err := safeDB.db.Prepare("INSERT INTO Users (username, password, name, animal) VALUES ($1, $2, $3, $4)")
+	safeDB.Lock.Lock()
+	defer safeDB.Lock.Unlock()
+	stmt, err := safeDB.DB.Prepare("INSERT INTO Users (username, password, name, animal) VALUES ($1, $2, $3, $4)")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -125,16 +124,16 @@ func createPostUserHandler(safeDB *SafeDB) gin.HandlerFunc {
 		}
 
 		// Hash the password
-		salt, err := password.GenerateSalt()
+		salt, err := passwords.GenerateSalt()
 		if err != nil {
 			c.Error(errors.New(err, c, "createPostUserHandler"))
 			return
 		}
-		hashedPassword := password.HashPassword(user.Password, salt)
+		hashedPassword := passwords.HashPassword(user.Password, salt)
 
 		// Insert the user into the database
-		safeDB.mu.Lock()
-		defer safeDB.mu.Unlock()
+		safeDB.Lock.Lock()
+		defer safeDB.Lock.Unlock()
 		if _, err = stmt.Exec(user.Username, hex.EncodeToString(salt)+hashedPassword, user.Name, user.Animal); err != nil {
 			c.Error(errors.New(err, c, "createPostUserHandler"))
 			return

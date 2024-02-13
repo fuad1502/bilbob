@@ -1,4 +1,4 @@
-package main
+package dbs
 
 import (
 	"database/sql"
@@ -9,8 +9,8 @@ import (
 
 // SafeDB is a wrapper around sql.DB that provides a mutex to make it safe for concurrent use
 type SafeDB struct {
-	mu sync.Mutex
-	db *sql.DB
+	Lock sync.Mutex
+	DB   *sql.DB
 }
 
 // ConnectDB connects to a Postgres database and checks if the connection is working and returns a SafeDB struct pointer if successful
@@ -24,5 +24,5 @@ func ConnectPGDB(host string, user string, password string, dbname string) (*Saf
 		db.Close()
 		return nil, errors.New("Failed to ping the database: " + err.Error())
 	}
-	return &SafeDB{db: db}, nil
+	return &SafeDB{DB: db}, nil
 }

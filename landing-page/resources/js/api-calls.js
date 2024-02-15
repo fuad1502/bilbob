@@ -41,7 +41,9 @@ export async function registerUser(user) {
  */
 export async function verifyUser(user) {
   const url = api + '/users/' + user.username + '/login?password=' + user.password;
-  const response = await fetch(url);
+  const response = await fetch(url, 
+    {credentials: 'include'}
+  );
   if (response.status != 200) {
     return [false, response.status];
   }

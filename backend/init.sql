@@ -7,3 +7,19 @@ CREATE TABLE Users (
 	animal ANIMAL,
 	PRIMARY KEY (username)
 );
+
+CREATE TABLE Follows (
+	username VARCHAR,
+	follows VARCHAR,
+	PRIMARY KEY (username, follows),
+	FOREIGN KEY (username) REFERENCES Users(username),
+	FOREIGN KEY (follows) REFERENCES Users(username)
+);
+
+CREATE TABLE Posts (
+	username VARCHAR,
+	post_id SERIAL,
+	post_text VARCHAR,
+	PRIMARY KEY (post_id),
+	FOREIGN KEY (username) REFERENCES Users(username)
+);

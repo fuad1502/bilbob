@@ -36,6 +36,9 @@ func main() {
 	router.GET("/users/:username/:action", routes.CreateUserActionHandler(safeDB))
 	router.POST("/users", routes.CreatePostUserHandler(safeDB))
 
+	// Add posts route
+	router.GET("/posts", routes.CreateGetPostsHandler(safeDB))
+
 	// Run the server
 	log.Println("Web service running")
 	router.Run(":8080")

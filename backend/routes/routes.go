@@ -72,6 +72,7 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	}
 	computedHash := passwords.HashPassword(submittedPassword, saltBytes)
 	if computedHash == storedHash {
+		c.SetCookie("username", username, 3600, "/", "localhost", false, true)
 		c.JSON(http.StatusOK, gin.H{"verified": true})
 	} else {
 		c.JSON(http.StatusOK, gin.H{"verified": false})
@@ -140,5 +141,55 @@ func CreatePostUserHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, gin.H{"result": "success"})
+	}
+}
+
+func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	// Prepare SQL statement for getting all posts
+	safeDB.Lock.Lock()
+	defer safeDB.Lock.Unlock()
+	stmt, err := safeDB.DB.Prepare(`
+		SELECT P.username, P.post_text 
+		FROM Posts P JOIN Follows F 
+		ON P.username = F.follows OR P.username = F.username 
+		WHERE F.username = $1`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return func(c *gin.Context) {
+		// Get the username from the Cookie
+		username, err := c.Cookie("username")
+		if err != nil {
+			if err == http.ErrNoCookie {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			} else {
+				c.Error(errors.New(err, c, "CreateGetPostsHandler"))
+			}
+			return
+		}
+
+		// Query the database for all posts
+		safeDB.Lock.Lock()
+		defer safeDB.Lock.Unlock()
+		rows, err := stmt.Query(username)
+		if err != nil {
+			c.Error(errors.New(err, c, "CreateGetPostsHandler"))
+			return
+		}
+		defer rows.Close()
+
+		// Iterate through the rows and add them to the response
+		posts := make([]gin.H, 0)
+		for rows.Next() {
+			var username, postText string
+			if err := rows.Scan(&username, &postText); err != nil {
+				c.Error(errors.New(err, c, "CreateGetPostsHandler"))
+				return
+			}
+			posts = append(posts, gin.H{"username": username, "postText": postText})
+		}
+
+		c.JSON(http.StatusOK, posts)
 	}
 }

@@ -1,0 +1,21 @@
+#app {
+  width: 75em;
+  max-width: 100vw;
+  background-color: white;
+  display: flex;
+  margin: 0 auto;
+}
+
+#navigation-panel {
+  flex: 1;
+  background-color: lightblue;
+}
+
+#post-panel {
+  flex: 2;
+}
+
+#discover-panel {
+  flex: 1;
+  background-color: lightblue;
+}

@@ -1,0 +1,21 @@
+#post-submit-form {
+  padding: 1em;
+  border: 0.1em solid black;
+}
+
+#post-submit-form textarea {
+  display: block;
+  resize: none;
+  height: 10em;
+  padding: 1em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+#post-submit-form button {
+}

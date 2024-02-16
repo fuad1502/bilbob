@@ -18,8 +18,6 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=secret
       - DB_NAME=postgres
-    working_dir: /go/bin
-    command: sh -c "sleep 3 && ./api"
     stop_grace_period: 1s
   landing-page:
     image: bilbob-landing-page
@@ -30,6 +28,4 @@ services:
       - 127.0.0.1:8080:8080
     volumes:
       - ./landing-page/resources:/go/bin/resources
-    working_dir: /go/bin
-    command: sh -c "sleep 4 && ./web-server"
     stop_grace_period: 1s

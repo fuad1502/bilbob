@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
 	"log"
 	"os"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 
 	"github.com/fuad1502/bilbob-backend/dbs"
 	"github.com/fuad1502/bilbob-backend/middlewares"
@@ -16,8 +18,19 @@ func main() {
 
 	// Connect to the database
 	log.Println("Connecting to the database...")
-	safeDB, err := dbs.ConnectPGDB(os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
-	if err != nil {
+	var safeDB *dbs.SafeDB
+	var err error
+	connected := false
+	for retry_count := 0; retry_count < 5; retry_count += 1 {
+		safeDB, err = dbs.ConnectPGDB(os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
+		if err == nil {
+			connected = true
+			break
+		}
+		time.Sleep(time.Second)
+		log.Println("Retrying database connection...")
+	}
+	if !connected {
 		log.Fatal(err)
 	}
 	log.Println("Connected to the database!")

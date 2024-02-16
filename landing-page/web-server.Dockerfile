@@ -1,10 +1,11 @@
-FROM golang:latest
-
+FROM golang:latest AS base
 WORKDIR /go/src
 COPY go.mod .
-RUN go mod download && go mod verify
-
+RUN --mount=type=cache,target=/root/.cache/go-build go mod download
 COPY web-server.go .
-RUN go build -o /go/bin/web-server
+RUN --mount=type=cache,target=/root/.cache/go-build go build -v -o /go/bin/web-server
 
+FROM ubuntu:latest
+COPY --from=base /go/bin/web-server /bin/web-server
 WORKDIR /go/bin
+ENTRYPOINT ["web-server"]

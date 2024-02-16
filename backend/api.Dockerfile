@@ -1,15 +1,16 @@
-FROM golang:latest
-
+FROM golang:latest AS base
 WORKDIR /go/src
 COPY go.mod go.sum .
-RUN go mod download && go mod verify
-
+RUN --mount=type=cache,target=/root/.cache/go-build go mod download
 COPY api.go .
-COPY passwords/passwords.go passwords/
-COPY errors/errors.go errors/
-COPY dbs/dbs.go dbs/
-COPY middlewares/middlewares.go middlewares/
-COPY routes/routes.go routes/
-RUN go build -o /go/bin/api
+COPY dbs/ ./dbs/
+COPY errors/ ./errors/
+COPY middlewares/ ./middlewares/
+COPY passwords/ ./passwords/
+COPY routes/ ./routes/
+RUN --mount=type=cache,target=/root/.cache/go-build go build -v -o /go/bin/api
 
+FROM ubuntu:latest
+COPY --from=base /go/bin/api /bin/api
 WORKDIR /go/bin
+ENTRYPOINT ["api"]

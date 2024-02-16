@@ -31,6 +31,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		if len(origins) == 0 {
 			allowedOrigin = ""
 		} else {
+			allowedOrigin = origins[0]
 			if allowedOrigin != "http://localhost:3000" && allowedOrigin != "http://localhost:8080" {
 				allowedOrigin = ""
 			}

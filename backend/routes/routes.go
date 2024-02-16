@@ -193,3 +193,44 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, posts)
 	}
 }
+
+func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	// Prepare SQL statement for posting a post
+	safeDB.Lock.Lock()
+	defer safeDB.Lock.Unlock()
+	stmt, err := safeDB.DB.Prepare(`
+		INSERT INTO Posts(username, post_text)
+		VALUES ($1, $2)`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return func(c *gin.Context) {
+		// Get the username from the Cookie
+		username, err := c.Cookie("username")
+		if err != nil {
+			if err == http.ErrNoCookie {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			} else {
+				c.Error(errors.New(err, c, "CreatePostPostHandler"))
+			}
+			return
+		}
+
+		// Get the post text from the JSON payload
+		var payload struct {
+			PostText string `json:"postText"`
+		}
+		c.BindJSON(&payload)
+
+		// Post the post to the database
+		safeDB.Lock.Lock()
+		defer safeDB.Lock.Unlock()
+		if _, err := stmt.Exec(username, payload.PostText); err != nil {
+			c.Error(errors.New(err, c, "CreatePostPostHandler"))
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{"result": "success"})
+	}
+}

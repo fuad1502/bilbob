@@ -38,6 +38,7 @@ func main() {
 
 	// Add posts route
 	router.GET("/posts", routes.CreateGetPostsHandler(safeDB))
+	router.POST("/posts", routes.CreatePostPostHandler(safeDB))
 
 	// Run the server
 	log.Println("Web service running")

@@ -24,7 +24,18 @@ func ErrorMiddleware() gin.HandlerFunc {
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+		// Get origins
+		origins := c.Request.Header["Origin"]
+		// Only set Access-Control-Allow-Origin to origin if origin either comes from landing-page webserver or webapp webserver
+		var allowedOrigin string
+		if len(origins) == 0 {
+			allowedOrigin = ""
+		} else {
+			if allowedOrigin != "http://localhost:3000" && allowedOrigin != "http://localhost:8080" {
+				allowedOrigin = ""
+			}
+		}
+		c.Writer.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")

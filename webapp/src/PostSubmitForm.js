@@ -12,7 +12,7 @@ export default function PostSubmitForm() {
   }
   return (
     <div id="post-submit-form">
-      What's on your mind?
+      <p>What's on your mind?</p>
       <form onSubmit={onsubmit}>
         <textarea ref={ref}></textarea>
         <div id="button-container">

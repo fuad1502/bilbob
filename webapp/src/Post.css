@@ -1,0 +1,15 @@
+#post {
+  min-height: 7em;
+  padding: 1em;
+  margin: 1em 0;
+  border-radius: 1em;
+  background: white;
+}
+
+#username {
+  color: darkgray;
+}
+
+#postText {
+  font-size: 1.5em;
+}

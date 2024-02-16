@@ -1,17 +1,19 @@
 import React from 'react';
+import { useRef } from 'react';
 import './PostSubmitForm.css'
 import { postPost } from './api-calls';
 
 export default function PostSubmitForm() {
+  const ref = useRef(null);
   function onsubmit (event) {
     event.preventDefault();
-    postPost();
+    postPost(ref.current.value);
   }
   return (
     <div id="post-submit-form">
       What's on your mind?
       <form onSubmit={onsubmit}>
-        <textarea></textarea>
+        <textarea ref={ref}></textarea>
         <div id="button-container">
           <div></div>
           <button type='submit'>Post</button>

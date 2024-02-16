@@ -8,6 +8,7 @@ export default function PostSubmitForm() {
   function onsubmit (event) {
     event.preventDefault();
     postPost(ref.current.value);
+    // TODO: display floating message of result
   }
   return (
     <div id="post-submit-form">

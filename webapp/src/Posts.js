@@ -1,7 +1,13 @@
 import React from 'react';
+import Post from './Post';
 
-export default function Posts() {
+export default function Posts({posts}) {
+  const postsJSX = posts.map((post) => {
+    return <Post post={post} />
+  });
   return (
-    <div id="posts">Posts</div>
+    <div id="posts">
+      {postsJSX}
+    </div>
   );
 }

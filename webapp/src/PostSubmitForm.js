@@ -3,17 +3,24 @@ import { useRef } from 'react';
 import './PostSubmitForm.css'
 import { postPost } from './api-calls';
 
-export default function PostSubmitForm() {
+export default function PostSubmitForm({onSubmit}) {
   const ref = useRef(null);
-  function onsubmit (event) {
+
+  function handleSubmit (event) {
     event.preventDefault();
-    postPost(ref.current.value);
-    // TODO: display floating message of result
+    postPost(ref.current.value).then((response) => {
+      if (response === 201) {
+        onSubmit();
+      } else {
+        // TODO: display error floating message
+      }
+    });
   }
+
   return (
     <div id="post-submit-form">
       <p>What's on your mind?</p>
-      <form onSubmit={onsubmit}>
+      <form onSubmit={handleSubmit}>
         <textarea ref={ref}></textarea>
         <div id="button-container">
           <div></div>

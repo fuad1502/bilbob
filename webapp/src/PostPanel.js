@@ -6,6 +6,7 @@ import { getPosts } from "./api-calls";
 export default function PostPanel () {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (!loading) {
       setLoading(true);
@@ -14,14 +15,18 @@ export default function PostPanel () {
         if (httpStatus !== 200) {
           // TODO: Show floating error message
         }
-        console.log(returnedPosts);
         setPosts(returnedPosts);
       });
     }
   }, [loading]);
+
+  function handleSubmit() {
+    setLoading(false);
+  }
+
   return (
     <div id="post-panel">
-      <PostSubmitForm />
+      <PostSubmitForm onSubmit={handleSubmit} />
       <Posts posts={posts}/>
     </div>
   )

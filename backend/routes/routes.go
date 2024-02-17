@@ -150,13 +150,15 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	safeDB.Lock.Lock()
 	defer safeDB.Lock.Unlock()
 	stmt, err := safeDB.DB.Prepare(`
-		SELECT P.username, P.post_text, P.post_date
-		FROM Posts P
-		WHERE P.username = $1
-		UNION
-		SELECT P.username, P.post_text, P.post_date
-		FROM Posts P, Follows F
-		WHERE F.username = $1 AND P.username = F.follows
+		SELECT P.username, P.post_text, P.post_date 
+		FROM	(SELECT P.username, P.post_text, P.post_date
+			FROM Posts P
+			WHERE P.username = $1
+			UNION
+			SELECT P.username, P.post_text, P.post_date
+			FROM Posts P, Follows F
+			WHERE F.username = $1 AND P.username = F.follows) AS P
+		ORDER BY P.post_date DESC
 		`)
 	if err != nil {
 		log.Fatal(err)

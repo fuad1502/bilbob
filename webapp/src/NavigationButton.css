@@ -1,0 +1,26 @@
+#navigation-button {
+  background: #99b9d5;
+  color: white;
+  border-radius: 1em;
+  padding: 0.5em;
+  margin: 1em 0;
+  width: 17em;
+}
+
+#navigation-button:hover {
+  background: #668bac;
+}
+
+#navigation-button div {
+  display: flex;
+  align-items: center;
+}
+
+#navigation-button span {
+  font-size: 1.2em;
+  padding: 0.2em;
+}
+
+#navigation-button span.logo {
+  font-size: 1.5em;
+}

@@ -1,0 +1,8 @@
+#navigation-panel {
+  padding: 1em;
+  min-height: 100vh;
+}
+
+#buttons-container {
+  position: fixed;
+}

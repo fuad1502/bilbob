@@ -1,5 +1,5 @@
 #navigation-button {
-  background: #99b9d5;
+  background: #8bbdcc;
   color: white;
   border-radius: 1em;
   padding: 0.5em;
@@ -8,7 +8,7 @@
 }
 
 #navigation-button:hover {
-  background: #668bac;
+  background: #56a5bd;
 }
 
 #navigation-button div {

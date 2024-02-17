@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/fuad1502/bilbob-backend/dbs"
 	"github.com/fuad1502/bilbob-backend/errors"
@@ -149,11 +150,11 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	safeDB.Lock.Lock()
 	defer safeDB.Lock.Unlock()
 	stmt, err := safeDB.DB.Prepare(`
-		SELECT P.username, P.post_text 
+		SELECT P.username, P.post_text, P.post_date
 		FROM Posts P
 		WHERE P.username = $1
 		UNION
-		SELECT P.username, P.post_text
+		SELECT P.username, P.post_text, P.post_date
 		FROM Posts P, Follows F
 		WHERE F.username = $1 AND P.username = F.follows
 		`)
@@ -187,11 +188,12 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		posts := make([]gin.H, 0)
 		for rows.Next() {
 			var username, postText string
-			if err := rows.Scan(&username, &postText); err != nil {
+			var postDate time.Time
+			if err := rows.Scan(&username, &postText, &postDate); err != nil {
 				c.Error(errors.New(err, c, "CreateGetPostsHandler"))
 				return
 			}
-			posts = append(posts, gin.H{"username": username, "postText": postText})
+			posts = append(posts, gin.H{"username": username, "postText": postText, "postDate": postDate})
 		}
 
 		c.JSON(http.StatusOK, posts)
@@ -203,8 +205,8 @@ func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	safeDB.Lock.Lock()
 	defer safeDB.Lock.Unlock()
 	stmt, err := safeDB.DB.Prepare(`
-		INSERT INTO Posts(username, post_text)
-		VALUES ($1, $2)`)
+		INSERT INTO Posts(username, post_text, post_date)
+		VALUES ($1, $2, $3)`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -230,7 +232,7 @@ func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		// Post the post to the database
 		safeDB.Lock.Lock()
 		defer safeDB.Lock.Unlock()
-		if _, err := stmt.Exec(username, payload.PostText); err != nil {
+		if _, err := stmt.Exec(username, payload.PostText, time.Now()); err != nil {
 			c.Error(errors.New(err, c, "CreatePostPostHandler"))
 			return
 		}

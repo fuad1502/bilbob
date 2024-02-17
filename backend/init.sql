@@ -20,6 +20,7 @@ CREATE TABLE Posts (
 	username VARCHAR,
 	post_id SERIAL,
 	post_text VARCHAR,
+	post_date TIMESTAMP,
 	PRIMARY KEY (post_id),
 	FOREIGN KEY (username) REFERENCES Users(username)
 );

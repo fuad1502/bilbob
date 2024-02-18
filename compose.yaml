@@ -29,3 +29,12 @@ services:
     volumes:
       - ./landing-page/resources:/go/bin/resources
     stop_grace_period: 1s
+  webapp:
+    image: bilbob-webapp
+    build:
+      context: webapp
+      dockerfile: node.Dockerfile
+    ports:
+      - 127.0.0.1:3000:3000
+    volumes:
+      - ./webapp:/webapp

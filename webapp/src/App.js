@@ -6,13 +6,13 @@ import ProfilePanel from './ProfilePanel';
 import DiscoverPanel from './DiscoverPanel';
 import MarketPanel from './MarketPanel';
 
-export default function App() {
+export default function App({username}) {
   const [view, setView] = useState("Park");
 
   let component;
   switch (view) {
     case "Home": component = <PostPanel />; break;
-    case "Profile": component = <ProfilePanel />; break;
+    case "Profile": component = <ProfilePanel username={username}/>; break;
     case "Market": component = <MarketPanel />; break;
     default: component = <PostPanel />; break;
   }

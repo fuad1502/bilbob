@@ -21,7 +21,7 @@ func main() {
 	var safeDB *dbs.SafeDB
 	var err error
 	connected := false
-	for retry_count := 0; retry_count < 5; retry_count += 1 {
+	for retry_count := 0; retry_count < 10; retry_count += 1 {
 		safeDB, err = dbs.ConnectPGDB(os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
 		if err == nil {
 			connected = true

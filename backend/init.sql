@@ -1,4 +1,5 @@
 CREATE TYPE ANIMAL AS ENUM ('cat', 'dog', 'bird', 'fish', 'reptile');
+CREATE TYPE FOLLOWS_STATE AS ENUM ('requested', 'follows');
 
 CREATE TABLE Users (
 	username VARCHAR,
@@ -11,6 +12,7 @@ CREATE TABLE Users (
 CREATE TABLE Follows (
 	username VARCHAR,
 	follows VARCHAR,
+	state FOLLOWS_STATE,
 	PRIMARY KEY (username, follows),
 	FOREIGN KEY (username) REFERENCES Users(username),
 	FOREIGN KEY (follows) REFERENCES Users(username)

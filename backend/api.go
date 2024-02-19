@@ -53,6 +53,9 @@ func main() {
 	router.GET("/posts", routes.CreateGetPostsHandler(safeDB))
 	router.POST("/posts", routes.CreatePostPostHandler(safeDB))
 
+	// Add authorization route
+	router.GET("/authorize", routes.CreateAuthorizeHandler(safeDB))
+
 	// Run the server
 	log.Println("Web service running")
 	router.Run(":8080")

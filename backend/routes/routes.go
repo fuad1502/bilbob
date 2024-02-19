@@ -21,6 +21,12 @@ type UserSignup struct {
 	Animal   string `json:"animal" binding:"required"`
 }
 
+type UserInfo struct {
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Animal   string `json:"animal"`
+}
+
 func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	// Get the username from the URL
 	username := c.Param("username")
@@ -82,6 +88,64 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	}
 }
 
+func userInfoHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
+	// Check if logged in
+	sessionId, err := c.Cookie("id")
+	if err != nil || !sessions.IsLoggedIn(sessionId) {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	// Extract queried username
+	requestedUser := c.Param("username")
+
+	// Query database
+	row := stmt.QueryRow(requestedUser)
+	var userInfo UserInfo
+	if err := row.Scan(&userInfo.Username, &userInfo.Name, &userInfo.Animal); err != nil {
+		if err == sql.ErrNoRows {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		} else {
+			c.Error(errors.New(err, c, "userInfoHandler"))
+			return
+		}
+	}
+
+	// Return info
+	c.JSON(http.StatusOK, userInfo)
+}
+
+func userFollowsHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
+	// Get the username
+	username, ok := getUsername(c)
+	if !ok {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	// Extract queried username
+	requestedUser := c.Param("username")
+	if requestedUser == username {
+		c.JSON(http.StatusOK, gin.H{"followsState": "NA"})
+		return
+	}
+
+	// Query follows status
+	row := stmt.QueryRow(username, requestedUser)
+	var followsState string
+	if err := row.Scan(&followsState); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusOK, gin.H{"followsState": "no"})
+			return
+		} else {
+			c.Error(errors.New(err, c, "userFollowsHandler"))
+			return
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"followsState": followsState})
+}
+
 func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	// Prepare SQL statement for checking if a user exists
 	safeDB.Lock.Lock()
@@ -97,6 +161,26 @@ func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		log.Fatal(err)
 	}
 
+	// Prepare SQL statement for getting user info
+	stmt3, err := safeDB.DB.Prepare(`
+		SELECT username, name, animal
+		FROM Users
+		WHERE username = $1
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Prepare SQL statement for getting user info
+	stmt4, err := safeDB.DB.Prepare(`
+		SELECT state
+		FROM Follows
+		WHERE username = $1 AND follows = $2
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return func(c *gin.Context) {
 		action := c.Param("action")
 		// Call the appropriate handler based on the action
@@ -104,6 +188,10 @@ func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			userExistsHandler(safeDB, c, stmt1)
 		} else if action == "login" {
 			userLoginHandler(safeDB, c, stmt2)
+		} else if action == "info" {
+			userInfoHandler(safeDB, c, stmt3)
+		} else if action == "follows" {
+			userFollowsHandler(safeDB, c, stmt4)
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}
@@ -123,7 +211,7 @@ func CreatePostUserHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		// Bind JSON payload to UserSignup struct
 		var user UserSignup
 		if err := c.BindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 
@@ -170,7 +258,7 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		// Get the username
 		username, ok := getUsername(c)
 		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
@@ -215,7 +303,7 @@ func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		// Get the username
 		username, ok := getUsername(c)
 		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
@@ -234,6 +322,20 @@ func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, gin.H{"result": "success"})
+	}
+}
+
+func CreateAuthorizeHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the username
+		username, ok := getUsername(c)
+		if !ok {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Return username
+		c.JSON(http.StatusOK, gin.H{"username": username})
 	}
 }
 

@@ -4,13 +4,13 @@ import ProfileButton from "./ProfileButton"
 import MarketplaceButton from "./MarketplaceButton"
 import './NavigationPanel.css'
 
-export default function NavigationPanel () {
+export default function NavigationPanel ({onSelectionClick}) {
   return (
     <div id="navigation-panel">
       <div id="buttons-container">
-        <HomeButton />
-        <ProfileButton />
-        <MarketplaceButton />
+        <HomeButton onClick={() => onSelectionClick("Home")}/>
+        <ProfileButton onClick={() => onSelectionClick("Profile")}/>
+        <MarketplaceButton onClick={() => onSelectionClick("Market")}/>
       </div>
     </div>
   )

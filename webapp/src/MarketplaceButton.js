@@ -1,8 +1,8 @@
 import React from "react";
 import NavigationButton from "./NavigationButton";
 
-export default function MarketplaceButton() {
+export default function MarketplaceButton({onClick}) {
   return (
-    <NavigationButton text={"Marketplace"} logo={"🛍️"}/>
+    <NavigationButton onClick={onClick} text={"Marketplace"} logo={"🛍️"}/>
   )
 }

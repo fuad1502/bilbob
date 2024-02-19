@@ -1,8 +1,8 @@
 import React from "react";
 import NavigationButton from "./NavigationButton";
 
-export default function ProfileButton() {
+export default function ProfileButton({onClick}) {
   return (
-    <NavigationButton text={"My House"} logo={"🏠"}/>
+    <NavigationButton onClick={onClick} text={"My House"} logo={"🏠"}/>
   )
 }

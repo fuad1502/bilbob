@@ -38,3 +38,4 @@ services:
       - 127.0.0.1:3000:3000
     volumes:
       - ./webapp:/webapp
+    stop_grace_period: 1s

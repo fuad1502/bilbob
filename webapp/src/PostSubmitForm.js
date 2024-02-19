@@ -1,15 +1,16 @@
 import React from 'react';
 import { useRef } from 'react';
 import './PostSubmitForm.css'
-import { postPost } from './api-calls';
+import { postPost, redirectWrap, LandingPageUrl } from './api-calls';
 
 export default function PostSubmitForm({onSubmit}) {
   const ref = useRef(null);
 
   function handleSubmit (event) {
     event.preventDefault();
-    postPost(ref.current.value).then((response) => {
-      if (response === 201) {
+    redirectWrap(() => postPost(ref.current.value), LandingPageUrl).then((response) => {
+      const [_, status] = response;
+      if (status === 201) {
         onSubmit();
       } else {
         // TODO: display error floating message

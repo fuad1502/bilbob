@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import PostSubmitForm from "./PostSubmitForm"
 import Posts from "./Posts"
-import { getPosts } from "./api-calls";
+import { getPosts, redirectWrap, LandingPageUrl } from "./api-calls";
 
 export default function PostPanel () {
   const [posts, setPosts] = useState([]);
@@ -10,7 +10,7 @@ export default function PostPanel () {
   useEffect(() => {
     if (!loading) {
       setLoading(true);
-      getPosts().then((result) => {
+      redirectWrap(getPosts, LandingPageUrl).then((result) => {
         const [returnedPosts, httpStatus] = result;
         if (httpStatus !== 200) {
           // TODO: Show floating error message

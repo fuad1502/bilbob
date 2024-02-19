@@ -10,6 +10,7 @@ import (
 	"github.com/fuad1502/bilbob-backend/dbs"
 	"github.com/fuad1502/bilbob-backend/errors"
 	"github.com/fuad1502/bilbob-backend/passwords"
+	"github.com/fuad1502/bilbob-backend/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -73,7 +74,8 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	}
 	computedHash := passwords.HashPassword(submittedPassword, saltBytes)
 	if computedHash == storedHash {
-		c.SetCookie("username", username, 3600, "/", "localhost", false, true)
+		sessionId := sessions.CreateSession(username)
+		c.SetCookie("id", sessionId, 3600, "/", "localhost", false, true)
 		c.JSON(http.StatusOK, gin.H{"verified": true})
 	} else {
 		c.JSON(http.StatusOK, gin.H{"verified": false})
@@ -165,14 +167,10 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
-		// Get the username from the Cookie
-		username, err := c.Cookie("username")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			} else {
-				c.Error(errors.New(err, c, "CreateGetPostsHandler"))
-			}
+		// Get the username
+		username, ok := getUsername(c)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
 
@@ -214,14 +212,10 @@ func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
-		// Get the username from the Cookie
-		username, err := c.Cookie("username")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			} else {
-				c.Error(errors.New(err, c, "CreatePostPostHandler"))
-			}
+		// Get the username
+		username, ok := getUsername(c)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
 
@@ -241,4 +235,12 @@ func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 
 		c.JSON(http.StatusCreated, gin.H{"result": "success"})
 	}
+}
+
+func getUsername(c *gin.Context) (string, bool) {
+	sessionid, err := c.Cookie("id")
+	if err != nil {
+		return "", false
+	}
+	return sessions.GetUsername(sessionid)
 }

@@ -56,7 +56,7 @@ export async function postPost(postText) {
 }
 
 /** GET posts from the backend server.
- * @returns {Promise<ApiResult<Post>>}
+ * @returns {Promise<ApiResult<[Post]>>}
  */
 export async function getPosts() {
   const url = api + '/posts';
@@ -68,4 +68,40 @@ export async function getPosts() {
   }
   const payload = await response.json();
   return [payload, response.status];
+}
+
+export async function getUsername() {
+  const url = api + '/authorize';
+  const response = await fetch(url, {
+    credentials: 'include'
+  });
+  if (response.status !== 200) {
+    return ["", response.status];
+  }
+  const payload = await response.json();
+  return [payload.username, response.status];
+}
+
+export async function getUserInfo(username) {
+  const url = api + '/users/' + username + '/info';
+  const response = await fetch(url, {
+    credentials: 'include'
+  });
+  if (response.status !== 200) {
+    return [null, response.status];
+  }
+  const payload = await response.json();
+  return [payload, response.status];
+}
+
+export async function getUserFollows(username) {
+  const url = api + '/users/' + username + '/follows';
+  const response = await fetch(url, {
+    credentials: 'include'
+  });
+  if (response.status !== 200) {
+    return [null, response.status];
+  }
+  const payload = await response.json();
+  return [payload.followsState, response.status];
 }

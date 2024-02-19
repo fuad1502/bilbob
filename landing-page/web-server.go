@@ -8,6 +8,8 @@ import (
 	"regexp"
 )
 
+const webappUrl = "localhost:3000"
+
 func loadFile(filename string) (string, string, error) {
 	ext, err := getExtension(filename)
 	if err != nil {
@@ -63,9 +65,16 @@ func landingPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Served %v!\n", fileName)
 }
 
+func wrapCORSHandler(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Access-Control-Allow-Origin", webappUrl)
+		handler(w, r)
+	}
+}
+
 func main() {
 	log.SetPrefix("[Bilbob WebServer]: ")
-	http.HandleFunc("/", landingPageHandler)
+	http.HandleFunc("/", wrapCORSHandler(landingPageHandler))
 	log.Println("Bilbob Web Server is running on port 8080! 🐱")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

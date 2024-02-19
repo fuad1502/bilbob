@@ -2,6 +2,10 @@ import FormHandler from './form-handler.js';
 import { checkUsernameExists, registerUser, verifyUser } from './api-calls.js';
 import { setFloatingMessageError, setFloatingMessageSuccess } from './floating-message.js';
 
+const WebappUrl = "http://localhost:3000";
+
+// TODO: Check if stored session_id is still authorized, if it is, redirect to webapp
+
 // Show the signup form and hide the login form.
 function showSignup() {
   document.getElementById('signup').style.display = 'flex';
@@ -81,4 +85,5 @@ document.querySelector('#login form').addEventListener('submit', async function(
     return;
   }
   setFloatingMessageSuccess('Login successful');
+  window.location.replace(WebappUrl);
 });

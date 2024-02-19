@@ -5,7 +5,7 @@ export default function NavigationButton({text, logo, onClick}) {
   return (
     <div id="navigation-button" onClick={onClick}>
       <div>
-        <span class="logo">{logo}</span><span>{text}</span>
+        <span className="logo">{logo}</span><span>{text}</span>
       </div>
     </div>
   )

@@ -23,6 +23,14 @@ export const LandingPageUrl = 'http://localhost:8080';
  * @typedef {{username: string, postText: string}} Post
  */
 
+/**
+ * @typedef {{username: string, name: string, animal: string}} UserInfo
+ */
+
+/**
+ * @typedef {{username: string, state: string}} FollowsInfo
+ */
+
 /** Wrap an API call with a redirect if the API call returns 401 (Unauthorized)
  * @template T
  * @param {ApiClosure<T>} apiCall
@@ -38,8 +46,10 @@ export async function redirectWrap(apiCall, redirectUrl) {
 }
 
 /** POST a post to the backend server
-  * @param {String} postText 
+  * @param {String} postText the text to post
   * @returns {Promise<ApiResult<null>>}
+  * a Promise for a null object wrapped with an HTTP status code. 
+  * 201 (Created) status code signifies a sucessful POST.
   */
 export async function postPost(postText) {
   const requestBody = JSON.stringify({"postText": postText});
@@ -57,6 +67,8 @@ export async function postPost(postText) {
 
 /** GET posts from the backend server.
  * @returns {Promise<ApiResult<[Post]>>}
+ * a Promise for an array of Post objects wrapped with an HTTP status code. 
+ * Array is set to empty array if HTTP status code is not 200 (OK).
  */
 export async function getPosts() {
   const url = api + '/posts';
@@ -70,6 +82,11 @@ export async function getPosts() {
   return [payload, response.status];
 }
 
+/** GET username of logged in session.
+  * @returns {Promise<ApiResult<string>>}
+  * a Promise for a username string wrapped with an HTTP status code. 
+  * username is set to empty string if HTTP status code is not 200 (OK).
+  */
 export async function getUsername() {
   const url = api + '/authorize';
   const response = await fetch(url, {
@@ -82,6 +99,11 @@ export async function getUsername() {
   return [payload.username, response.status];
 }
 
+/** GET information about a user.
+  * @returns {Promise<ApiResult<UserInfo>} 
+  * a Promise for single UserInfo object wrapped with an HTTP status code. 
+  * Object is set to null if HTTP status code is not 200 (OK).
+  */
 export async function getUserInfo(username) {
   const url = api + '/users/' + username;
   const response = await fetch(url, {
@@ -94,6 +116,12 @@ export async function getUserInfo(username) {
   return [payload, response.status];
 }
 
+/** GET the followings information of the logged in user filtered to a certain 
+  * user.
+  * @returns {Promise<ApiResult<FollowsInfo>>} 
+  * a Promise for single FollowsInfo object wrapped with an HTTP status code. 
+  * Object is set to null if HTTP status code is not 200 (OK).
+  */
 export async function getFollowsUser(username) {
   const url = api + '/users/' + 'follows?username=' + username;
   const response = await fetch(url, {

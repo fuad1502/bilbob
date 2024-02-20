@@ -61,3 +61,28 @@ func (safeDB *SafeDB) QueryRow(query string, row any, args ...any) error {
 		return sqlRow.Scan(row)
 	}
 }
+
+func (safeDB *SafeDB) InsertRow(insertStmt string, row any) error {
+	stmt, err := safeDB.getStmt(insertStmt)
+	if err != nil {
+		panic(err)
+	}
+
+	r := reflect.ValueOf(row)
+	if r.Kind() != reflect.Pointer {
+		return errors.New("dbs.Insert: Parameter 'row' must be of type pointer")
+	}
+
+	r = reflect.Indirect(r)
+	if r.Kind() == reflect.Struct {
+		param := make([]any, r.NumField())
+		for i := range param {
+			param[i] = r.Field(i).Addr().Interface()
+		}
+		_, err := stmt.Exec(param...)
+		return err
+	} else {
+		_, err := stmt.Exec(row)
+		return err
+	}
+}

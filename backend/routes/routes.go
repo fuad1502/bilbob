@@ -31,6 +31,12 @@ type Follows struct {
 	State   string `json:"state"`
 }
 
+type Post struct {
+	Username string    `json:"username"`
+	PostText string    `json:"postText"`
+	PostDate time.Time `json:"postDate"`
+}
+
 func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 	// Get the username from the URL
 	username := c.Param("username")
@@ -181,14 +187,6 @@ func CreateGetFollowsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 }
 
 func CreatePostUserHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
-	// Prepare SQL statement for adding a user
-	safeDB.Lock.Lock()
-	defer safeDB.Lock.Unlock()
-	stmt, err := safeDB.DB.Prepare("INSERT INTO Users (username, password, name, animal) VALUES ($1, $2, $3, $4)")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return func(c *gin.Context) {
 		// Bind JSON payload to UserSignup struct
 		var user UserSignup
@@ -205,9 +203,11 @@ func CreatePostUserHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		// Insert the user into the database
+		stmt := "INSERT INTO Users (username, password, name, animal) VALUES ($1, $2, $3, $4)"
+		user.Password = saltAndHash
 		safeDB.Lock.Lock()
 		defer safeDB.Lock.Unlock()
-		if _, err = stmt.Exec(user.Username, saltAndHash, user.Name, user.Animal); err != nil {
+		if err = safeDB.InsertRow(stmt, &user); err != nil {
 			c.Error(errors.New(err, c, "createPostUserHandler"))
 			return
 		}
@@ -270,16 +270,6 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 }
 
 func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
-	// Prepare SQL statement for posting a post
-	safeDB.Lock.Lock()
-	defer safeDB.Lock.Unlock()
-	stmt, err := safeDB.DB.Prepare(`
-		INSERT INTO Posts(username, post_text, post_date)
-		VALUES ($1, $2, $3)`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return func(c *gin.Context) {
 		// Get the username
 		username, ok := getUsername(c)
@@ -295,9 +285,14 @@ func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		c.BindJSON(&payload)
 
 		// Post the post to the database
+		stmt := `
+		INSERT INTO Posts(username, post_text, post_date)
+		VALUES ($1, $2, $3)
+		`
+		post := Post{username, payload.PostText, time.Now()}
 		safeDB.Lock.Lock()
 		defer safeDB.Lock.Unlock()
-		if _, err := stmt.Exec(username, payload.PostText, time.Now()); err != nil {
+		if err := safeDB.InsertRow(stmt, &post); err != nil {
 			c.Error(errors.New(err, c, "CreatePostPostHandler"))
 			return
 		}

@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import './index.css';
-import { getUsername, redirectWrap } from './api-calls';
+import { getUsername } from './api-calls';
 
-redirectWrap(getUsername).then(
+getUsername().then(
   (result) => {
     const [username, _] = result;
     console.log(username)

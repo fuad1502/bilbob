@@ -16,7 +16,7 @@ export const LandingPageUrl = 'http://localhost:8080';
 
 /**
  * @template T
- * @typedef {()=>Promise<ApiResult<T>>} ApiClosure<T>
+ * @typedef {[res: T, ok: boolean]} Result<T>
  */
 
 /**
@@ -31,18 +31,52 @@ export const LandingPageUrl = 'http://localhost:8080';
  * @typedef {{username: string, state: string}} FollowsInfo
  */
 
-/** Wrap an API call with a redirect if the API call returns 401 (Unauthorized)
- * @template T
- * @param {ApiClosure<T>} apiCall
- * @param {string} redirectUrl
- * @returns {Promise<ApiResult<T>>}
+/** 
+ * A generic GET request to the API endpoint.
+ * @param {string} route API route.
+ * @param {boolean} withCredentials a flag indicating whether to include Cookie or not.
+ * @returns {Promise<ApiResult<any>>} A Promise for the returned payload and the HTTP status.
+ * If the HTTP status code is 401 (Unauthorized), it automatically redirects to LandingPageUrl.
  */
-export async function redirectWrap(apiCall, redirectUrl) {
-  const [body, status] = await apiCall();
-  if (status === 401) {
-    window.location.replace(redirectUrl);
+async function genericGET(route, withCredentials) {
+  const url = api + route;
+  let init = {}
+  if (withCredentials) {
+    init['credentials'] = 'include';
   }
-  return [body, status]
+  const response = await fetch(url, init);
+  if (response.status === 401) {
+    window.location.replace(LandingPageUrl);
+  }
+  const payload = await response.json();
+  return [payload, response.status];
+}
+
+/** 
+ * A generic POST request to the API endpoint.
+ * @param {string} route API route.
+ * @param {boolean} withCredentials a flag indicating whether to include Cookie or not.
+ * @returns {Promise<ApiResult<any>>} A Promise for the returned payload and the HTTP status.
+ * If the HTTP status code is 401 (Unauthorized), it automatically redirects to LandingPageUrl.
+ */
+async function genericPOST(route, withCredentials, requestBody) {
+  const url = api + route; 
+  let init = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: requestBody
+  }
+  if (withCredentials) {
+    init['credentials'] = 'include';
+  }
+  const response = await fetch(url, init);
+  if (response.status === 401) {
+    window.location.replace(LandingPageUrl);
+  }
+  const payload = await response.json();
+  return [payload, response.status]; 
 }
 
 /** POST a post to the backend server
@@ -53,83 +87,58 @@ export async function redirectWrap(apiCall, redirectUrl) {
   */
 export async function postPost(postText) {
   const requestBody = JSON.stringify({"postText": postText});
-  const url = api + '/posts'; 
-  const response = await fetch(url, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: requestBody
-  });
-  return [null, response.status]; 
+  const [payload, status] = await genericPOST('/posts', true, requestBody);
+  if (status !== 201) {
+    return [null, false];
+  }
+  return [payload, true];
 }
 
 /** GET posts from the backend server.
- * @returns {Promise<ApiResult<[Post]>>}
- * a Promise for an array of Post objects wrapped with an HTTP status code. 
- * Array is set to empty array if HTTP status code is not 200 (OK).
+ * @returns {Promise<Result<[Post]>>}
+ * a Promise for an array of Post objects inside a Result struct.
  */
 export async function getPosts() {
-  const url = api + '/posts';
-  const response = await fetch(url, {
-    credentials: 'include'
-  });
-  if (response.status !== 200) {
-    return [[], response.status];
+  const [payload, status] = await genericGET('/posts', true);
+  if (status !== 200) {
+    return [[], false];
   }
-  const payload = await response.json();
-  return [payload, response.status];
+  return [payload, true];
 }
 
 /** GET username of logged in session.
-  * @returns {Promise<ApiResult<string>>}
-  * a Promise for a username string wrapped with an HTTP status code. 
-  * username is set to empty string if HTTP status code is not 200 (OK).
+  * @returns {Promise<Result<string>>}
+  * a Promise for a username string inside a Result struct. 
   */
 export async function getUsername() {
-  const url = api + '/authorize';
-  const response = await fetch(url, {
-    credentials: 'include'
-  });
-  if (response.status !== 200) {
-    return ["", response.status];
+  const [payload, status] = await genericGET('/authorize', true);
+  if (status !== 200) {
+    return ["", false];
   }
-  const payload = await response.json();
-  return [payload.username, response.status];
+  return [payload.username, true];
 }
 
 /** GET information about a user.
-  * @returns {Promise<ApiResult<UserInfo>} 
-  * a Promise for single UserInfo object wrapped with an HTTP status code. 
-  * Object is set to null if HTTP status code is not 200 (OK).
+  * @returns {Promise<Result<UserInfo>} 
+  * a Promise for single UserInfo object inside a Result struct. 
   */
 export async function getUserInfo(username) {
-  const url = api + '/users/' + username;
-  const response = await fetch(url, {
-    credentials: 'include'
-  });
-  if (response.status !== 200) {
-    return [null, response.status];
+  const [payload, status] = await genericGET('/users/' + username, true);
+  if (status !== 200) {
+    return [null, false];
   }
-  const payload = await response.json();
-  return [payload, response.status];
+  return [payload, true];
 }
 
 /** GET the followings information of the logged in user filtered to a certain 
   * user.
-  * @returns {Promise<ApiResult<FollowsInfo>>} 
-  * a Promise for single FollowsInfo object wrapped with an HTTP status code. 
-  * Object is set to null if HTTP status code is not 200 (OK).
+  * @returns {Promise<Result<FollowsInfo>>} 
+  * a Promise for single FollowsInfo object in a Result struct. 
   */
 export async function getFollowsUser(username) {
-  const url = api + '/users/' + 'follows?username=' + username;
-  const response = await fetch(url, {
-    credentials: 'include'
-  });
-  if (response.status !== 200) {
-    return [null, response.status];
+  const [payload, status] = await genericGET('/users/follows?username=' + username, true);
+  if (status !== 200) {
+    return [null, false];
   }
-  const payload = await response.json();
-  return [payload, response.status];
+  return [payload, true];
 }

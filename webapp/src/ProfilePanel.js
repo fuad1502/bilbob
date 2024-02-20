@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getUserInfo, getFollowsUser, redirectWrap } from "./api-calls";
+import { getUserInfo, getFollowsUser } from "./api-calls";
 
 export default function ProfilePanel({username}) {
   const [profileInfo, setProfileInfo] = useState(null);
@@ -8,18 +8,18 @@ export default function ProfilePanel({username}) {
 
   if (!loaded) {
     setLoaded(true);
-    redirectWrap(() => getUserInfo(username)).then(
+    getUserInfo(username).then(
       (result) => {
-        const [getProfile, status] = result;
-        if (status === 200) {
+        const [getProfile, ok] = result;
+        if (ok) {
           setProfileInfo(getProfile);
         }
       }
     );
-    redirectWrap(() => getFollowsUser(username)).then(
+    getFollowsUser(username).then(
       (result) => {
-        const [getIsFollowing, status] = result;
-        if (status === 200) {
+        const [getIsFollowing, ok] = result;
+        if (ok) {
           setIsFollowing(getIsFollowing);
         }
       }

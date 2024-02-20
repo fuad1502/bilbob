@@ -51,7 +51,7 @@ func main() {
 	router.POST("/users", routes.CreatePostUserHandler(safeDB))
 
 	// Add follows route
-	router.GET("/users/follows", routes.CreateGetFollowsHandler(safeDB))
+	router.GET("/follows", routes.CreateGetFollowsHandler(safeDB))
 
 	// Add posts route
 	router.GET("/posts", routes.CreateGetPostsHandler(safeDB))

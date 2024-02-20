@@ -136,7 +136,7 @@ export async function getUserInfo(username) {
   * a Promise for single FollowsInfo object in a Result struct. 
   */
 export async function getFollowsUser(username) {
-  const [payload, status] = await genericGET('/users/follows?username=' + username, true);
+  const [payload, status] = await genericGET('/follows?username=' + username, true);
   if (status !== 200) {
     return [null, false];
   }

@@ -93,32 +93,44 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	}
 }
 
-func userInfoHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
-	// Check if logged in
-	sessionId, err := c.Cookie("id")
-	if err != nil || !sessions.IsLoggedIn(sessionId) {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
+func CreateGetUserInfoHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	// Prepare SQL statement for getting user info
+	stmt, err := safeDB.DB.Prepare(`
+		SELECT username, name, animal
+		FROM Users
+		WHERE username = $1
+	`)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	// Extract queried username
-	requestedUser := c.Param("username")
-
-	// Query database
-	row := stmt.QueryRow(requestedUser)
-	var userInfo UserInfo
-	if err := row.Scan(&userInfo.Username, &userInfo.Name, &userInfo.Animal); err != nil {
-		if err == sql.ErrNoRows {
-			c.AbortWithStatus(http.StatusNotFound)
-			return
-		} else {
-			c.Error(errors.New(err, c, "userInfoHandler"))
+	return func(c *gin.Context) {
+		// Check if logged in
+		sessionId, err := c.Cookie("id")
+		if err != nil || !sessions.IsLoggedIn(sessionId) {
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-	}
 
-	// Return info
-	c.JSON(http.StatusOK, userInfo)
+		// Extract queried username
+		requestedUser := c.Param("username")
+
+		// Query database
+		row := stmt.QueryRow(requestedUser)
+		var userInfo UserInfo
+		if err := row.Scan(&userInfo.Username, &userInfo.Name, &userInfo.Animal); err != nil {
+			if err == sql.ErrNoRows {
+				c.AbortWithStatus(http.StatusNotFound)
+				return
+			} else {
+				c.Error(errors.New(err, c, "userInfoHandler"))
+				return
+			}
+		}
+
+		// Return info
+		c.JSON(http.StatusOK, userInfo)
+	}
 }
 
 func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
@@ -136,16 +148,6 @@ func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		log.Fatal(err)
 	}
 
-	// Prepare SQL statement for getting user info
-	stmt3, err := safeDB.DB.Prepare(`
-		SELECT username, name, animal
-		FROM Users
-		WHERE username = $1
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return func(c *gin.Context) {
 		action := c.Param("action")
 		// Call the appropriate handler based on the action
@@ -153,8 +155,6 @@ func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			userExistsHandler(safeDB, c, stmt1)
 		} else if action == "login" {
 			userLoginHandler(safeDB, c, stmt2)
-		} else if action == "info" {
-			userInfoHandler(safeDB, c, stmt3)
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}

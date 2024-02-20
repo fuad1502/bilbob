@@ -83,7 +83,7 @@ export async function getUsername() {
 }
 
 export async function getUserInfo(username) {
-  const url = api + '/users/' + username + '/info';
+  const url = api + '/users/' + username;
   const response = await fetch(url, {
     credentials: 'include'
   });

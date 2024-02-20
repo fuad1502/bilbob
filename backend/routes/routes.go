@@ -31,15 +31,15 @@ type Follows struct {
 	State   string `json:"state"`
 }
 
-func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
+func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 	// Get the username from the URL
 	username := c.Param("username")
 
 	// Query the database for the user
+	query := "SELECT username FROM Users WHERE username = $1"
 	safeDB.Lock.Lock()
 	defer safeDB.Lock.Unlock()
-	row := stmt.QueryRow(username)
-	if err := row.Scan(&username); err != nil {
+	if err := safeDB.QueryRow(query, &username, username); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, gin.H{"exists": false})
 			return
@@ -51,24 +51,24 @@ func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	c.JSON(http.StatusOK, gin.H{"exists": true})
 }
 
-func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
+func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 	// Get the username from the URL
 	username := c.Param("username")
 
-	// Query the database for the user
-	safeDB.Lock.Lock()
-	defer safeDB.Lock.Unlock()
+	// Query the database for the user's salt & hash
+	query := "SELECT password FROM Users WHERE username = $1"
 	var saltAndHash string
-	row := stmt.QueryRow(username)
-	if err := row.Scan(&saltAndHash); err != nil {
+	safeDB.Lock.Lock()
+	if err := safeDB.QueryRow(query, &saltAndHash, username); err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, gin.H{"verified": false})
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		} else {
 			c.Error(errors.New(err, c, "userLoginHandler"))
 			return
 		}
 	}
+	safeDB.Lock.Unlock()
 
 	// Get the submitted password from the URL
 	submittedPassword := c.Query("password")
@@ -89,16 +89,6 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 }
 
 func CreateGetUserInfoHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
-	// Prepare SQL statement for getting user info
-	stmt, err := safeDB.DB.Prepare(`
-		SELECT username, name, animal
-		FROM Users
-		WHERE username = $1
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return func(c *gin.Context) {
 		// Check if logged in
 		sessionId, err := c.Cookie("id")
@@ -111,9 +101,15 @@ func CreateGetUserInfoHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		requestedUser := c.Param("username")
 
 		// Query database
-		row := stmt.QueryRow(requestedUser)
+		query := `
+		SELECT username, name, animal
+		FROM Users
+		WHERE username = $1
+		`
 		var userInfo UserInfo
-		if err := row.Scan(&userInfo.Username, &userInfo.Name, &userInfo.Animal); err != nil {
+		safeDB.Lock.Lock()
+		defer safeDB.Lock.Unlock()
+		if err := safeDB.QueryRow(query, &userInfo, requestedUser); err != nil {
 			if err == sql.ErrNoRows {
 				c.AbortWithStatus(http.StatusNotFound)
 				return
@@ -129,27 +125,13 @@ func CreateGetUserInfoHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 }
 
 func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
-	// Prepare SQL statement for checking if a user exists
-	safeDB.Lock.Lock()
-	defer safeDB.Lock.Unlock()
-	stmt1, err := safeDB.DB.Prepare("SELECT username FROM Users WHERE username = $1")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Prepare SQL statement for checking password hash
-	stmt2, err := safeDB.DB.Prepare("SELECT password FROM Users WHERE username = $1")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return func(c *gin.Context) {
 		action := c.Param("action")
 		// Call the appropriate handler based on the action
 		if action == "exists" {
-			userExistsHandler(safeDB, c, stmt1)
+			userExistsHandler(safeDB, c)
 		} else if action == "login" {
-			userLoginHandler(safeDB, c, stmt2)
+			userLoginHandler(safeDB, c)
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}
@@ -157,16 +139,6 @@ func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 }
 
 func CreateGetFollowsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
-	// Prepare SQL statement to get the following state in relation to a certain user
-	stmt, err := safeDB.DB.Prepare(`
-		SELECT follows, state
-		FROM Follows
-		WHERE username = $1 AND follows = $2
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return func(c *gin.Context) {
 		// Get the username
 		username, ok := getUsername(c)
@@ -185,9 +157,13 @@ func CreateGetFollowsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			}
 
 			// Query follows status
+			query := `
+				SELECT follows, state
+				FROM Follows
+				WHERE username = $1 AND follows = $2
+			`
 			var follows Follows
-			row := stmt.QueryRow(username, requestedUser)
-			if err := row.Scan(follows.Follows, follows.State); err != nil {
+			if err := safeDB.QueryRow(query, &follows, username, requestedUser); err != nil {
 				if err == sql.ErrNoRows {
 					c.AbortWithStatus(http.StatusNotFound)
 					return

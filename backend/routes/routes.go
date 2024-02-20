@@ -2,7 +2,6 @@ package routes
 
 import (
 	"database/sql"
-	"encoding/hex"
 	"log"
 	"net/http"
 	"time"
@@ -74,17 +73,13 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	// Get the submitted password from the URL
 	submittedPassword := c.Query("password")
 
-	// Hash password with salt and compare with stored hash
-	// TODO: Encapsulate the following logic into a function
-	salt := saltAndHash[:passwords.SaltSize*2]
-	storedHash := saltAndHash[passwords.SaltSize*2:]
-	saltBytes, err := hex.DecodeString(salt)
+	// Verifiy the submitted password
+	verified, err := passwords.VerifyPassword(submittedPassword, saltAndHash)
 	if err != nil {
 		c.Error(errors.New(err, c, "userLoginHandler"))
 		return
 	}
-	computedHash := passwords.HashPassword(submittedPassword, saltBytes)
-	if computedHash == storedHash {
+	if verified {
 		sessionId := sessions.CreateSession(username)
 		c.SetCookie("id", sessionId, 3600, "/", "localhost", false, true)
 		c.JSON(http.StatusOK, gin.H{"verified": true})
@@ -226,18 +221,17 @@ func CreatePostUserHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			return
 		}
 
-		// Hash the password
-		salt, err := passwords.GenerateSalt()
+		// Generate salt and hash from the password
+		saltAndHash, err := passwords.GenerateSaltAndHash(user.Password)
 		if err != nil {
 			c.Error(errors.New(err, c, "createPostUserHandler"))
 			return
 		}
-		hashedPassword := passwords.HashPassword(user.Password, salt)
 
 		// Insert the user into the database
 		safeDB.Lock.Lock()
 		defer safeDB.Lock.Unlock()
-		if _, err = stmt.Exec(user.Username, hex.EncodeToString(salt)+hashedPassword, user.Name, user.Animal); err != nil {
+		if _, err = stmt.Exec(user.Username, saltAndHash, user.Name, user.Animal); err != nil {
 			c.Error(errors.New(err, c, "createPostUserHandler"))
 			return
 		}

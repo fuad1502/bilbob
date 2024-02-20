@@ -94,8 +94,8 @@ export async function getUserInfo(username) {
   return [payload, response.status];
 }
 
-export async function getUserFollows(username) {
-  const url = api + '/users/' + username + '/follows';
+export async function getFollowsUser(username) {
+  const url = api + '/users/' + 'follows?username=' + username;
   const response = await fetch(url, {
     credentials: 'include'
   });
@@ -103,5 +103,5 @@ export async function getUserFollows(username) {
     return [null, response.status];
   }
   const payload = await response.json();
-  return [payload.followsState, response.status];
+  return [payload, response.status];
 }

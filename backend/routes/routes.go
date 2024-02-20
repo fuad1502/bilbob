@@ -27,6 +27,11 @@ type UserInfo struct {
 	Animal   string `json:"animal"`
 }
 
+type Follows struct {
+	Follows string `json:"follows"`
+	State   string `json:"state"`
+}
+
 func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	// Get the username from the URL
 	username := c.Param("username")
@@ -116,36 +121,6 @@ func userInfoHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
 	c.JSON(http.StatusOK, userInfo)
 }
 
-func userFollowsHandler(safeDB *dbs.SafeDB, c *gin.Context, stmt *sql.Stmt) {
-	// Get the username
-	username, ok := getUsername(c)
-	if !ok {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	// Extract queried username
-	requestedUser := c.Param("username")
-	if requestedUser == username {
-		c.JSON(http.StatusOK, gin.H{"followsState": "NA"})
-		return
-	}
-
-	// Query follows status
-	row := stmt.QueryRow(username, requestedUser)
-	var followsState string
-	if err := row.Scan(&followsState); err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusOK, gin.H{"followsState": "no"})
-			return
-		} else {
-			c.Error(errors.New(err, c, "userFollowsHandler"))
-			return
-		}
-	}
-	c.JSON(http.StatusOK, gin.H{"followsState": followsState})
-}
-
 func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	// Prepare SQL statement for checking if a user exists
 	safeDB.Lock.Lock()
@@ -171,16 +146,6 @@ func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		log.Fatal(err)
 	}
 
-	// Prepare SQL statement for getting user info
-	stmt4, err := safeDB.DB.Prepare(`
-		SELECT state
-		FROM Follows
-		WHERE username = $1 AND follows = $2
-	`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return func(c *gin.Context) {
 		action := c.Param("action")
 		// Call the appropriate handler based on the action
@@ -190,10 +155,56 @@ func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			userLoginHandler(safeDB, c, stmt2)
 		} else if action == "info" {
 			userInfoHandler(safeDB, c, stmt3)
-		} else if action == "follows" {
-			userFollowsHandler(safeDB, c, stmt4)
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)
+		}
+	}
+}
+
+func CreateGetFollowsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	// Prepare SQL statement to get the following state in relation to a certain user
+	stmt, err := safeDB.DB.Prepare(`
+		SELECT follows, state
+		FROM Follows
+		WHERE username = $1 AND follows = $2
+	`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return func(c *gin.Context) {
+		// Get the username
+		username, ok := getUsername(c)
+		if !ok {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Check username filter, if exists
+		requestedUser := c.Query("username")
+		// TODO: handle the case with no filter
+		if requestedUser != "" {
+			if requestedUser == username {
+				c.AbortWithStatus(http.StatusBadRequest)
+				return
+			}
+
+			// Query follows status
+			var follows Follows
+			row := stmt.QueryRow(username, requestedUser)
+			if err := row.Scan(follows.Follows, follows.State); err != nil {
+				if err == sql.ErrNoRows {
+					c.AbortWithStatus(http.StatusNotFound)
+					return
+				} else {
+					c.Error(errors.New(err, c, "userFollowsHandler"))
+					return
+				}
+			}
+			c.JSON(http.StatusOK, follows)
+		} else {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
 		}
 	}
 }

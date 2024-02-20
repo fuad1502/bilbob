@@ -62,6 +62,54 @@ func (safeDB *SafeDB) QueryRow(query string, row any, args ...any) error {
 	}
 }
 
+func (safeDB *SafeDB) Query(query string, rows any, args ...any) error {
+	t := reflect.TypeOf(rows)
+	if t.Kind() != reflect.Slice {
+		return fmt.Errorf("dbs.QueryRow: rows should be of type slice")
+	}
+	rowsRefl := reflect.ValueOf(rows)
+
+	stmt, err := safeDB.getStmt(query)
+	if err != nil {
+		panic(fmt.Errorf("dbs.QueryRow: %v", err))
+	}
+
+	sqlRows, err := stmt.Query(args...)
+	if err != nil {
+		return fmt.Errorf("dbs.QueryRow: %v", err)
+	}
+
+	t = t.Elem()
+	if t.Kind() == reflect.Struct {
+		row := reflect.Indirect(reflect.New(t))
+		param := make([]any, row.NumField())
+		for i := range param {
+			param[i] = row.Field(i).Addr().Interface()
+		}
+		count := 0
+		for sqlRows.Next() {
+			sqlRows.Scan(param...)
+			if count >= rowsRefl.Len() {
+				reflect.Append(rowsRefl, row)
+			} else {
+				rowsRefl.Index(count).Set(row)
+			}
+		}
+	} else {
+		row := reflect.Indirect(reflect.New(t))
+		count := 0
+		for sqlRows.Next() {
+			sqlRows.Scan(row.Addr().Interface())
+			if count >= rowsRefl.Len() {
+				reflect.Append(rowsRefl, row)
+			} else {
+				rowsRefl.Index(count).Set(row)
+			}
+		}
+	}
+	return nil
+}
+
 func (safeDB *SafeDB) InsertRow(insertStmt string, row any) error {
 	stmt, err := safeDB.getStmt(insertStmt)
 	if err != nil {

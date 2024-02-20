@@ -2,7 +2,6 @@ package routes
 
 import (
 	"database/sql"
-	"log"
 	"net/http"
 	"time"
 
@@ -217,24 +216,6 @@ func CreatePostUserHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 }
 
 func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
-	// Prepare SQL statement for getting all posts
-	safeDB.Lock.Lock()
-	defer safeDB.Lock.Unlock()
-	stmt, err := safeDB.DB.Prepare(`
-		SELECT P.username, P.post_text, P.post_date 
-		FROM	(SELECT P.username, P.post_text, P.post_date
-			FROM Posts P
-			WHERE P.username = $1
-			UNION
-			SELECT P.username, P.post_text, P.post_date
-			FROM Posts P, Follows F
-			WHERE F.username = $1 AND P.username = F.follows) AS P
-		ORDER BY P.post_date DESC
-		`)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	return func(c *gin.Context) {
 		// Get the username
 		username, ok := getUsername(c)
@@ -244,27 +225,23 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		// Query the database for all posts
+		query := `
+			SELECT P.username, P.post_text, P.post_date 
+			FROM	(SELECT P.username, P.post_text, P.post_date
+				FROM Posts P
+				WHERE P.username = $1
+				UNION
+				SELECT P.username, P.post_text, P.post_date
+				FROM Posts P, Follows F
+				WHERE F.username = $1 AND P.username = F.follows) AS P
+			ORDER BY P.post_date DESC`
 		safeDB.Lock.Lock()
 		defer safeDB.Lock.Unlock()
-		rows, err := stmt.Query(username)
-		if err != nil {
+		posts := make([]Post, 1)
+		if err := safeDB.Query(query, posts, username); err != nil {
 			c.Error(errors.New(err, c, "CreateGetPostsHandler"))
 			return
 		}
-		defer rows.Close()
-
-		// Iterate through the rows and add them to the response
-		posts := make([]gin.H, 0)
-		for rows.Next() {
-			var username, postText string
-			var postDate time.Time
-			if err := rows.Scan(&username, &postText, &postDate); err != nil {
-				c.Error(errors.New(err, c, "CreateGetPostsHandler"))
-				return
-			}
-			posts = append(posts, gin.H{"username": username, "postText": postText, "postDate": postDate})
-		}
-
 		c.JSON(http.StatusOK, posts)
 	}
 }

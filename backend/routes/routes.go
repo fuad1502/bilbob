@@ -163,9 +163,9 @@ func CreateGetFollowsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 
 			// Query follows status
 			query := `
-				SELECT follows, state
-				FROM Follows
-				WHERE username = $1 AND follows = $2
+			SELECT follows, state
+			FROM Follows
+			WHERE username = $1 AND follows = $2
 			`
 			var follows Follows
 			if err := safeDB.QueryRow(query, &follows, username, requestedUser); err != nil {
@@ -226,23 +226,25 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 
 		// Query the database for all posts
 		query := `
-			SELECT P.username, P.post_text, P.post_date 
-			FROM	(SELECT P.username, P.post_text, P.post_date
-				FROM Posts P
-				WHERE P.username = $1
-				UNION
-				SELECT P.username, P.post_text, P.post_date
-				FROM Posts P, Follows F
-				WHERE F.username = $1 AND P.username = F.follows) AS P
-			ORDER BY P.post_date DESC`
+		SELECT P.username, P.post_text, P.post_date 
+		FROM	(SELECT P.username, P.post_text, P.post_date
+			FROM Posts P
+			WHERE P.username = $1
+			UNION
+			SELECT P.username, P.post_text, P.post_date
+			FROM Posts P, Follows F
+			WHERE F.username = $1 AND P.username = F.follows) AS P
+		ORDER BY P.post_date DESC
+		`
 		safeDB.Lock.Lock()
 		defer safeDB.Lock.Unlock()
-		posts := make([]Post, 1)
-		if err := safeDB.Query(query, posts, username); err != nil {
+		posts := make([]Post, 0)
+		if newPosts, err := safeDB.Query(query, posts, username); err != nil {
 			c.Error(errors.New(err, c, "CreateGetPostsHandler"))
 			return
+		} else {
+			c.JSON(http.StatusOK, newPosts.([]Post))
 		}
-		c.JSON(http.StatusOK, posts)
 	}
 }
 

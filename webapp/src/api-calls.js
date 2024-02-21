@@ -48,8 +48,13 @@ async function genericGET(route, withCredentials) {
   if (response.status === 401) {
     window.location.replace(LandingPageUrl);
   }
-  const payload = await response.json();
-  return [payload, response.status];
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.indexOf("application/json") !== -1) {
+    const payload = await response.json();
+    return [payload, response.status];
+  } else {
+    return [null, response.status];
+  }
 }
 
 /** 

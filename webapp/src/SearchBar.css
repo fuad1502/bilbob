@@ -1,13 +1,20 @@
 #search-bar {
-  background: white;
   position: fixed;
+}
+
+#search-input {
+  background: white;
   width: 17em;
   padding: 0.5em;
   border-radius: 1em;
   display: flex;
 }
 
-#search-bar input {
+#search-input.has-result {
+  border-radius: 1em 1em 0 0;
+}
+
+#search-input input {
   background: white;
   font-size: 1.2em;
   border: none;
@@ -15,11 +22,21 @@
   width: 85%;
 }
 
-#search-bar input:focus {
+#search-input input:focus {
   outline: none;
 }
 
-#search-bar span {
+#search-input span {
   font-size: 1.2em;
   margin-right: 0.5em;
+}
+
+.search-result {
+  font-size: 1em;
+  padding: 0.5em;
+  background: white;
+}
+
+.search-result:last-of-type {
+  border-radius: 0 0 1em 1em;
 }

@@ -8,12 +8,14 @@ import MarketPanel from './MarketPanel';
 
 export default function App({ username }) {
   const [view, setView] = useState("Home");
+  const [otherProfile, setOtherProfile] = useState("");
 
   let component;
   switch (view) {
     case "Home": component = <PostPanel />; break;
     case "Profile": component = <ProfilePanel username={username} />; break;
     case "Market": component = <MarketPanel />; break;
+    case "OtherProfile": component = <ProfilePanel username={otherProfile} />; break;
     default: component = <PostPanel />; break;
   }
 
@@ -21,11 +23,16 @@ export default function App({ username }) {
     setView(selection);
   }
 
+  function handleSelectUser(username) {
+    setView("OtherProfile");
+    setOtherProfile(username);
+  }
+
   return (
     <div id="app">
       <NavigationPanel onSelectionClick={handleNavigationClicked} selection={view} />
       {component}
-      <DiscoverPanel />
+      <DiscoverPanel onSelectUser={handleSelectUser} />
     </div>
   );
 }

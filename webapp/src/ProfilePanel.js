@@ -6,25 +6,30 @@ import ProfileName from "./ProfileName";
 
 export default function ProfilePanel({ username }) {
   const [profileInfo, setProfileInfo] = useState({});
-  const [isFollowing, setIsFollowing] = useState("NA");
+  const [follows, setFollows] = useState({});
+  const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  if (!loaded) {
-    setLoaded(true);
-    getUserInfo(username).then(
+  if (loaded && username !== profileInfo.username) {
+    setLoaded(false);
+  }
+
+  if (!loaded && !loading) {
+    setLoading(true);
+    const p1 = getUserInfo(username);
+    const p2 = getFollowsUser(username);
+    Promise.all([p1, p2]).then(
       (result) => {
-        const [getProfile, ok] = result;
-        if (ok) {
+        const [getProfile, ok1] = result[0];
+        const [getFollows, ok2] = result[1];
+        if (ok1) {
           setProfileInfo(getProfile);
         }
-      }
-    );
-    getFollowsUser(username).then(
-      (result) => {
-        const [getIsFollowing, ok] = result;
-        if (ok) {
-          setIsFollowing(getIsFollowing);
+        if (ok2) {
+          setFollows(getFollows);
         }
+        setLoading(false);
+        setLoaded(true);
       }
     );
   }

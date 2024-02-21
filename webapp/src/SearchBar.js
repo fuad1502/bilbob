@@ -3,7 +3,7 @@ import "./SearchBar.css";
 import { getUsers } from "./api-calls";
 import { useState } from "react";
 
-export default function SearchBar() {
+export default function SearchBar({ onSelectUser }) {
   const [users, setUsers] = useState([]);
 
   function handleChange(text) {
@@ -19,7 +19,7 @@ export default function SearchBar() {
 
   const searchResults = users.map((user) => {
     return (
-      <div className="search-result" key={user.username}>
+      <div className="search-result" key={user.username} onClick={() => onSelectUser(user.username)}>
         {user.name} (@{user.username})
       </div>
     );

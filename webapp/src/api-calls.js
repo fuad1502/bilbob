@@ -60,7 +60,7 @@ async function genericGET(route, withCredentials) {
  * If the HTTP status code is 401 (Unauthorized), it automatically redirects to LandingPageUrl.
  */
 async function genericPOST(route, withCredentials, requestBody) {
-  const url = api + route; 
+  const url = api + route;
   let init = {
     method: 'POST',
     headers: {
@@ -76,7 +76,7 @@ async function genericPOST(route, withCredentials, requestBody) {
     window.location.replace(LandingPageUrl);
   }
   const payload = await response.json();
-  return [payload, response.status]; 
+  return [payload, response.status];
 }
 
 /** POST a post to the backend server
@@ -86,7 +86,7 @@ async function genericPOST(route, withCredentials, requestBody) {
   * 201 (Created) status code signifies a sucessful POST.
   */
 export async function postPost(postText) {
-  const requestBody = JSON.stringify({"postText": postText});
+  const requestBody = JSON.stringify({ "postText": postText });
   const [payload, status] = await genericPOST('/posts', true, requestBody);
   if (status !== 201) {
     return [null, false];
@@ -139,6 +139,14 @@ export async function getFollowsUser(username) {
   const [payload, status] = await genericGET('/follows?username=' + username, true);
   if (status !== 200) {
     return [null, false];
+  }
+  return [payload, true];
+}
+
+export async function getUsers(like) {
+  const [payload, status] = await genericGET('/users?like=' + like, true);
+  if (status !== 200) {
+    return [[], false];
   }
   return [payload, true];
 }

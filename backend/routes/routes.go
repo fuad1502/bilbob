@@ -3,6 +3,7 @@ package routes
 import (
 	"database/sql"
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/fuad1502/bilbob-backend/dbs"
@@ -181,6 +182,39 @@ func CreateGetFollowsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
+		}
+	}
+}
+
+func CreateGetUsersHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Check if logged in
+		sessionId, err := c.Cookie("id")
+		if err != nil || !sessions.IsLoggedIn(sessionId) {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Check if has "like" filter
+		like := c.Query("like")
+		re := regexp.MustCompile(`[^\w_]`)
+		like = re.ReplaceAllString(like, "")
+		like = "%" + like + "%"
+
+		// Find all users that has a name or username like "like"
+		query := `
+		SELECT username, name, animal
+		FROM Users
+		WHERE name LIKE $1 OR username LIKE $1
+		`
+		safeDB.Lock.Lock()
+		defer safeDB.Lock.Unlock()
+		userInfos := make([]UserInfo, 0)
+		if newUserInfos, err := safeDB.Query(query, userInfos, like); err != nil {
+			c.Error(errors.New(err, c, "CreateGetUsersHandler"))
+			return
+		} else {
+			c.JSON(http.StatusOK, newUserInfos)
 		}
 	}
 }

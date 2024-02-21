@@ -7,10 +7,8 @@ export default function SearchBar({ onSelectUser }) {
   const [users, setUsers] = useState([]);
 
   function handleChange(text) {
-    console.log(text);
     text = text.replaceAll(/[^ \w_]/g, '');
-    console.log(text);
-    if (text == "") {
+    if (text === "") {
       setUsers([]);
       return;
     }

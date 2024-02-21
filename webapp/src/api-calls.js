@@ -143,6 +143,11 @@ export async function getFollowsUser(username) {
   return [payload, true];
 }
 
+/** GET all users that has a name or username matching the 'like' filter. 
+  * @param {string} like name/username filter
+  * @returns {Promise<Result<UserInfo>>} 
+  * a Promise for an array of UserInfo object in a Result struct. 
+  */
 export async function getUsers(like) {
   const [payload, status] = await genericGET('/users?like=' + like, true);
   if (status !== 200) {

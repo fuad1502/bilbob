@@ -4,7 +4,8 @@ import "./ProfileName.css";
 export default function ProfileName({ name, username, animal }) {
 
   switch (animal) {
-    case "cat": animal = "🐱";
+    case "cat": animal = "🐱"; break;
+    default:
   }
 
   return (

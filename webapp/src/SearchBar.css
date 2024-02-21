@@ -1,0 +1,25 @@
+#search-bar {
+  background: white;
+  position: fixed;
+  width: 17em;
+  padding: 0.5em;
+  border-radius: 1em;
+  display: flex;
+}
+
+#search-bar input {
+  background: white;
+  font-size: 1.2em;
+  border: none;
+  border-bottom: 0.05em solid gray;
+  width: 85%;
+}
+
+#search-bar input:focus {
+  outline: none;
+}
+
+#search-bar span {
+  font-size: 1.2em;
+  margin-right: 0.5em;
+}

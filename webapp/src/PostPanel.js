@@ -22,7 +22,7 @@ export default function PostPanel () {
   }
 
   return (
-    <div id="post-panel">
+    <div id="post-panel" className="main-panel">
       <PostSubmitForm onSubmit={handleSubmit} />
       <Posts posts={posts}/>
     </div>

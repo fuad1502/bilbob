@@ -1,0 +1,29 @@
+#profile-name {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 1em 0;
+}
+
+#profile-name div {
+  padding: 1em;
+  background: white;
+  border-radius: 1em;
+  border: 0.15em solid gray;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#profile-name #name {
+  padding: 0 0.3em;
+}
+
+#profile-name #username {
+  font-weight: bold;
+  color: skyblue;
+}
+
+#profile-name #animal {
+  font-size: 1.5em;
+}

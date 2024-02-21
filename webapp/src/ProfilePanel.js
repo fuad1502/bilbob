@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { getUserInfo, getFollowsUser } from "./api-calls";
+import ProfileImage from "./ProfileImage";
+import FollowButton from "./FollowButton";
+import ProfileName from "./ProfileName";
 
-export default function ProfilePanel({username}) {
-  const [profileInfo, setProfileInfo] = useState(null);
+export default function ProfilePanel({ username }) {
+  const [profileInfo, setProfileInfo] = useState({});
   const [isFollowing, setIsFollowing] = useState("NA");
   const [loaded, setLoaded] = useState(false);
 
@@ -27,6 +30,10 @@ export default function ProfilePanel({username}) {
   }
 
   return (
-    <div id="profile-panel">ProfilePanel</div>
+    <div id="profile-panel" className="main-panel">
+      <ProfileImage />
+      <ProfileName animal={profileInfo.animal} name={profileInfo.name} username={profileInfo.username} />
+      <FollowButton />
+    </div>
   );
 }

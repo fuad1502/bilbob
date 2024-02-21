@@ -6,10 +6,10 @@
   background: white;
 }
 
-#username {
+#post #username {
   color: darkgray;
 }
 
-#postText {
+#post #postText {
   font-size: 1.2em;
 }

@@ -37,6 +37,12 @@
   background: white;
 }
 
+.search-result:hover {
+  background: gray;
+  color: white;
+  cursor: pointer;
+}
+
 .search-result:last-of-type {
   border-radius: 0 0 1em 1em;
 }

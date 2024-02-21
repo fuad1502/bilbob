@@ -5,6 +5,7 @@
   padding: 0.5em;
   margin: 1em 0;
   width: 17em;
+  box-sizing: border-box;
 }
 
 #navigation-button:hover {

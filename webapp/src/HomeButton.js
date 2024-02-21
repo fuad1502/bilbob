@@ -1,8 +1,8 @@
 import React from "react";
 import NavigationButton from "./NavigationButton";
 
-export default function HomeButton({onClick}) {
+export default function HomeButton({ onClick, selected }) {
   return (
-    <NavigationButton onClick={onClick} text={"Park"} logo={"🌳"} />
+    <NavigationButton onClick={onClick} selected={selected} text={"Park"} logo={"🌳"} />
   )
 }

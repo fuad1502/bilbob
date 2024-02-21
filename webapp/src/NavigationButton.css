@@ -11,6 +11,10 @@
   background: #56a5bd;
 }
 
+#navigation-button.selected {
+  border: 0.2em solid white
+}
+
 #navigation-button div {
   display: flex;
   align-items: center;

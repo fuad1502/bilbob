@@ -6,13 +6,13 @@ import ProfilePanel from './ProfilePanel';
 import DiscoverPanel from './DiscoverPanel';
 import MarketPanel from './MarketPanel';
 
-export default function App({username}) {
-  const [view, setView] = useState("Park");
+export default function App({ username }) {
+  const [view, setView] = useState("Home");
 
   let component;
   switch (view) {
     case "Home": component = <PostPanel />; break;
-    case "Profile": component = <ProfilePanel username={username}/>; break;
+    case "Profile": component = <ProfilePanel username={username} />; break;
     case "Market": component = <MarketPanel />; break;
     default: component = <PostPanel />; break;
   }
@@ -23,7 +23,7 @@ export default function App({username}) {
 
   return (
     <div id="app">
-      <NavigationPanel onSelectionClick={handleNavigationClicked} />
+      <NavigationPanel onSelectionClick={handleNavigationClicked} selection={view} />
       {component}
       <DiscoverPanel />
     </div>

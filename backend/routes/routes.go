@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/fuad1502/bilbob-backend/dbs"
@@ -197,15 +198,19 @@ func CreateGetUsersHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 
 		// Check if has "like" filter
 		like := c.Query("like")
-		re := regexp.MustCompile(`[^\w_]`)
+		re := regexp.MustCompile(`[^ \w_]`)
 		like = re.ReplaceAllString(like, "")
+		if like == "" {
+			c.JSON(http.StatusOK, gin.H{})
+		}
+		like = strings.ToLower(like)
 		like = "%" + like + "%"
 
 		// Find all users that has a name or username like "like"
 		query := `
 		SELECT username, name, animal
 		FROM Users
-		WHERE name LIKE $1 OR username LIKE $1
+		WHERE LOWER(name) LIKE $1 OR LOWER(username) LIKE $1
 		`
 		safeDB.Lock.Lock()
 		defer safeDB.Lock.Unlock()

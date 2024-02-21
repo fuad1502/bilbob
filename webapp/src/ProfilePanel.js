@@ -38,7 +38,7 @@ export default function ProfilePanel({ username }) {
     <div id="profile-panel" className="main-panel">
       <ProfileImage />
       <ProfileName animal={profileInfo.animal} name={profileInfo.name} username={profileInfo.username} />
-      <FollowButton />
+      <FollowButton state={follows.state} />
     </div>
   );
 }

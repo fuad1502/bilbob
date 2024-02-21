@@ -1,0 +1,40 @@
+#follow-button {
+  display: flex;
+  justify-content: space-around;
+}
+
+#follow-button button {
+  font-size: 1em;
+  width: 10em;
+  padding: 0.5em;
+  border-radius: 1em;
+  border: none;
+}
+
+#follow-button button.gray {
+  background: white;
+  color: gray;
+  border: 0.15em solid gray;
+}
+
+#follow-button button.blue {
+  background: skyblue;
+  color: blue;
+  border: 0.15em solid blue;
+}
+
+#follow-button button.red {
+  background: salmon;
+  color: darkred;
+  border: 0.15em solid darkred;
+}
+
+#follow-button button.green {
+  background: lightgreen;
+  color: green;
+  border: 0.15em solid green;
+}
+
+#follow-button button:hover {
+  cursor: pointer;
+}

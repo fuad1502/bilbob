@@ -40,4 +40,5 @@
 
 #post-submit-form button:hover {
   background: #458497;
+  cursor: pointer;
 }

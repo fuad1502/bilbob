@@ -1,4 +1,8 @@
 #navigation-button {
+  display: block;
+  font-size: inherit;
+  font-family: inherit;
+  border: none;
   background: #8bbdcc;
   color: white;
   border-radius: 1em;
@@ -10,6 +14,7 @@
 
 #navigation-button:hover {
   background: #56a5bd;
+  cursor: pointer;
 }
 
 #navigation-button.selected {

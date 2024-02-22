@@ -29,3 +29,22 @@
 #navigation-button span.logo {
   font-size: 1.5em;
 }
+
+@media (max-width: 75em) {
+  #navigation-button span.text {
+    display: none;
+  }
+
+  #navigation-button span.logo {
+    font-size: 1.5em;
+  }
+
+  #navigation-button {
+    height: 3.5em;
+    width: 3.5em;
+    border-radius: 3.5em;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+}

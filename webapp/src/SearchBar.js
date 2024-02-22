@@ -3,7 +3,7 @@ import "./SearchBar.css";
 import { getUsers } from "./api-calls";
 import { useState } from "react";
 
-export default function SearchBar({ onSelectUser }) {
+export default function SearchBar({ onSelectUser, inPanel }) {
   const [users, setUsers] = useState([]);
 
   function handleChange(text) {
@@ -33,7 +33,7 @@ export default function SearchBar({ onSelectUser }) {
   const hasResultClassName = searchResults.length > 0 ? "has-result" : "";
 
   return (
-    <div id="search-bar">
+    <div id="search-bar" className={inPanel ? "in-panel" : ""}>
       <div id="search-input" className={hasResultClassName}>
         <span>🔎 </span><input onChange={(e) => handleChange(e.target.value)} type="search"></input>
       </div>

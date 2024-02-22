@@ -4,10 +4,26 @@
 
 #search-input {
   background: white;
-  width: 17em;
+  width: 16em;
   padding: 0.5em;
   border-radius: 1em;
   display: flex;
+}
+
+#search-bar.in-panel {
+  position: initial;
+}
+
+#search-bar.in-panel #search-input {
+  width: initial;
+  font-size: 1.2em;
+  margin-top: 1.5em;
+}
+
+@media (min-width: 55em) {
+  #search-bar.in-panel {
+    display: none;
+  }
 }
 
 #search-input.has-result {

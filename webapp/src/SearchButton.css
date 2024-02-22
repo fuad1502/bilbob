@@ -1,0 +1,5 @@
+@media (min-width: 55em) {
+  #search-button-container {
+    display: none;
+  }
+}

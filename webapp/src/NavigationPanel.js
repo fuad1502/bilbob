@@ -2,6 +2,7 @@ import React from "react"
 import HomeButton from "./HomeButton"
 import ProfileButton from "./ProfileButton"
 import MarketplaceButton from "./MarketplaceButton"
+import SearchButton from "./SearchButton"
 import './NavigationPanel.css'
 
 export default function NavigationPanel({ selection, onSelectionClick }) {
@@ -11,6 +12,7 @@ export default function NavigationPanel({ selection, onSelectionClick }) {
         <HomeButton onClick={() => onSelectionClick("Home")} selected={selection === "Home" ? true : false} />
         <ProfileButton onClick={() => onSelectionClick("Profile")} selected={selection === "Profile" ? true : false} />
         <MarketplaceButton onClick={() => onSelectionClick("Market")} selected={selection === "Market" ? true : false} />
+        <SearchButton onClick={() => onSelectionClick("Search")} selected={selection === "Search" ? true : false} />
       </div>
     </div>
   )

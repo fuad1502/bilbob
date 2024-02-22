@@ -5,6 +5,7 @@ import PostPanel from './PostPanel';
 import ProfilePanel from './ProfilePanel';
 import DiscoverPanel from './DiscoverPanel';
 import MarketPanel from './MarketPanel';
+import SearchPanel from './SearchPanel';
 
 export default function App({ username }) {
   const [view, setView] = useState("Home");
@@ -15,6 +16,7 @@ export default function App({ username }) {
     case "Home": component = <PostPanel />; break;
     case "Profile": component = <ProfilePanel username={username} selfUsername={username} />; break;
     case "Market": component = <MarketPanel />; break;
+    case "Search": component = <SearchPanel onSelectUser={handleSelectUser} />; break;
     case "OtherProfile": component = <ProfilePanel username={otherProfile} selfUsername={username} />; break;
     default: component = <PostPanel />; break;
   }

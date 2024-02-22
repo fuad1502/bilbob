@@ -6,6 +6,7 @@ import ProfilePanel from './ProfilePanel';
 import DiscoverPanel from './DiscoverPanel';
 import MarketPanel from './MarketPanel';
 import SearchPanel from './SearchPanel';
+import { logout } from './api-calls';
 
 export default function App({ username }) {
   const [view, setView] = useState("Home");
@@ -22,6 +23,9 @@ export default function App({ username }) {
   }
 
   function handleNavigationClicked(selection) {
+    if (selection === "Logout") {
+      logout();
+    }
     setView(selection);
   }
 

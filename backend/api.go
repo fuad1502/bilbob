@@ -62,6 +62,7 @@ func main() {
 
 	// Add authorization route
 	router.GET("/authorize", routes.CreateAuthorizeHandler(safeDB))
+	router.GET("/logout", routes.CreateLogoutHandler(safeDB))
 
 	// Run the server
 	log.Println("Web service running")

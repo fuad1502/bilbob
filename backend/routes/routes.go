@@ -424,6 +424,23 @@ func CreateAuthorizeHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	}
 }
 
+func CreateLogoutHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the username
+		username, ok := getUsername(c)
+		if !ok {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Essentially delete the cookie
+		c.SetCookie("id", "", 0, "/", "localhost", false, true)
+
+		// Return username
+		c.JSON(http.StatusOK, gin.H{"username": username})
+	}
+}
+
 func getUsername(c *gin.Context) (string, bool) {
 	sessionid, err := c.Cookie("id")
 	if err != nil {

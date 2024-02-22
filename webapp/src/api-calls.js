@@ -173,21 +173,30 @@ export async function requestFollow(username, follows) {
   const requestBody = JSON.stringify({ "username": username, "follows": follows, "state": "requested" });
   const [_, status] = await genericPOST("/followings/" + username + "?follows=" + follows, true, requestBody);
   if (status !== 201) {
-    return [null, false];
+    return false;
   }
-  return [null, true];
+  return true;
 }
 
 export async function unfollow(username, follows) {
   const [_, status] = await genericDELETE("/followings/" + username + "?follows=" + follows, true);
   if (status !== 200) {
-    return [null, false];
+    return false;
   }
-  return [null, true];
+  return true;
 }
 
 export async function unrequest(username, follows) {
   return await unfollow(username, follows);
+}
+
+export async function logout() {
+  const [_, status] = await genericGET("/logout", true);
+  if (status !== 200) {
+    return false;
+  }
+  window.location.replace(LandingPageUrl);
+  return true;
 }
 
 /** GET all users that has a name or username matching the 'like' filter. 

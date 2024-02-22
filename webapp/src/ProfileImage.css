@@ -15,3 +15,13 @@
 #profile-image input {
   display: none;
 }
+
+#profile-image.in-post {
+  display: inline-block;
+}
+
+#profile-image.in-post img {
+  width: 3em;
+  height: 3em;
+  border: none;
+}

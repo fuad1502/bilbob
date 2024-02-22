@@ -1,17 +1,21 @@
 import React from "react";
 import './Post.css'
+import ProfileImage from "./ProfileImage";
 
-export default function Post ({post}) {
+export default function Post({ post }) {
   const postDateString = displayPostDate(post.postDate);
   return (
     <div id="post">
-      <p id="username">{'@' + post.username} · {postDateString}</p>
+      <div id="post-header">
+        <ProfileImage key={post.username} username={post.username} inPost={true} />
+        <span id="username">{'@' + post.username} · {postDateString}</span>
+      </div>
       <p id="postText">{post.postText}</p>
     </div>
   )
 }
 
-function displayPostDate (postDate) {
+function displayPostDate(postDate) {
   const timestamp = Date.parse(postDate);
   const secondsAgo = (Date.now() - timestamp) / 1000;
   const minutesAgo = secondsAgo / 60;

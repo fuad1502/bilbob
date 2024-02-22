@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import "./ProfileImage.css";
 import { getProfilePicture, setProfilePicture } from "./api-calls";
 
-export default function ProfileImage({ username, selfUsername }) {
+export default function ProfileImage({ username, selfUsername, inPost }) {
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [image, setImage] = useState(<img alt=""></img>);
@@ -21,7 +21,7 @@ export default function ProfileImage({ username, selfUsername }) {
   }
 
   function handleClick() {
-    if (username === selfUsername) {
+    if (!inPost && username === selfUsername) {
       ref.current.click()
     }
   }
@@ -31,7 +31,7 @@ export default function ProfileImage({ username, selfUsername }) {
   }
 
   return (
-    <div id="profile-image" onClick={handleClick}>
+    <div id="profile-image" className={inPost? "in-post" : ""} onClick={handleClick}>
       {image}
       <input ref={ref} onChange={handleChange} type="file"></input>
     </div>

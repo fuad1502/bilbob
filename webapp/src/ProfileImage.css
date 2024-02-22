@@ -16,6 +16,23 @@
   display: none;
 }
 
+#profile-image #overlay {
+  position: absolute;
+  width: 15em;
+  height: 15em;
+  border-radius: 50%;
+  border: 0.5em solid rgba(0, 0, 0, 0);
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+}
+
+#profile-image #overlay[hidden] {
+  display: none;
+}
+
 #profile-image.in-post {
   display: inline-block;
 }

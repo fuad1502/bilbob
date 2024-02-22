@@ -1,8 +1,9 @@
 import React from "react";
 import "./FollowButton.css";
 
-export default function FollowButton({ state }) {
+export default function FollowButton({ state, onClick }) {
   let text, hoverText, hoverClass, defaultClass;
+  let display = true;
   switch (state) {
     case "requested":
       text = "Requested";
@@ -16,11 +17,14 @@ export default function FollowButton({ state }) {
       defaultClass = "green";
       hoverClass = "red";
       break;
-    default:
+    case "no":
       text = "Not following";
       hoverText = "Follow";
       defaultClass = "gray";
       hoverClass = "green";
+      break;
+    default:
+      display = false;
       break;
   }
 
@@ -34,11 +38,13 @@ export default function FollowButton({ state }) {
     e.target.className = hoverClass;
   }
 
-  return (
-    <div id="follow-button">
-      <button className={defaultClass} onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
-        {text}
-      </button>
-    </div>
-  );
+  if (display) {
+    return (
+      <div id="follow-button">
+        <button className={defaultClass} onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter} onClick={onClick}>
+          {text}
+        </button>
+      </div>
+    );
+  }
 }

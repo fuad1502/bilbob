@@ -28,8 +28,9 @@ type UserInfo struct {
 }
 
 type FollowingInfo struct {
-	Follows string `json:"follows"`
-	State   string `json:"state"`
+	Username string `json:"username"`
+	Follows  string `json:"follows"`
+	State    string `json:"state"`
 }
 
 type Post struct {
@@ -164,12 +165,12 @@ func CreateGetFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		if follows != "" {
 			// Query follows status
 			query := `
-			SELECT follows, state
+			SELECT username, follows, state
 			FROM Followings
 			WHERE username = $1 AND follows = $2
 			`
-			var follows FollowingInfo
-			if err := safeDB.QueryRow(query, &follows, requestedUser, follows); err != nil {
+			var followingInfo FollowingInfo
+			if err := safeDB.QueryRow(query, &followingInfo, requestedUser, follows); err != nil {
 				if err == sql.ErrNoRows {
 					c.AbortWithStatus(http.StatusNotFound)
 					return
@@ -178,11 +179,64 @@ func CreateGetFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 					return
 				}
 			}
-			c.JSON(http.StatusOK, follows)
+			c.JSON(http.StatusOK, followingInfo)
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
+	}
+}
+
+func CreatePostFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the logged in loggedInAs
+		loggedInAs, ok := getUsername(c)
+		if !ok {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Get username to POST to
+		username := c.Param("username")
+		if username != loggedInAs {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Get follows filter
+		follows := c.Query("follows")
+		if follows == "" {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		// Get payload
+		var payload FollowingInfo
+		if err := c.BindJSON(&payload); err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+		if follows != payload.Follows {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		if payload.State == "requested" {
+			stmt := `
+			INSERT INTO Followings(username, follows, state) VALUES ($1, $2, $3)
+			`
+			safeDB.Lock.Lock()
+			defer safeDB.Lock.Unlock()
+			if err := safeDB.InsertRow(stmt, &payload); err != nil {
+				c.Error(errors.New(err, c, "CreatePostFollowingsHandler"))
+				return
+			}
+		} else {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{"result": "success"})
 	}
 }
 

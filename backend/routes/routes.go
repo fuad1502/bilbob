@@ -27,7 +27,7 @@ type UserInfo struct {
 	Animal   string `json:"animal"`
 }
 
-type Follows struct {
+type FollowingInfo struct {
 	Follows string `json:"follows"`
 	State   string `json:"state"`
 }
@@ -145,37 +145,36 @@ func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	}
 }
 
-func CreateGetFollowsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+func CreateGetFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Get the username
-		username, ok := getUsername(c)
-		if !ok {
+		// Check if logged in
+		sessionId, err := c.Cookie("id")
+		if err != nil || !sessions.IsLoggedIn(sessionId) {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
-		// Check username filter, if exists
-		requestedUser := c.Query("username")
-		// TODO: handle the case with no filter
-		if requestedUser != "" {
-			if requestedUser == username {
-				c.AbortWithStatus(http.StatusBadRequest)
-				return
-			}
+		// Get the username
+		requestedUser := c.Param("username")
+		// TODO: handle only followers or self can see the followings of a user
 
+		// Check follows filter, if exists
+		follows := c.Query("follows")
+		// TODO: handle the case with no filter
+		if follows != "" {
 			// Query follows status
 			query := `
 			SELECT follows, state
-			FROM Follows
+			FROM Followings
 			WHERE username = $1 AND follows = $2
 			`
-			var follows Follows
-			if err := safeDB.QueryRow(query, &follows, username, requestedUser); err != nil {
+			var follows FollowingInfo
+			if err := safeDB.QueryRow(query, &follows, requestedUser, follows); err != nil {
 				if err == sql.ErrNoRows {
 					c.AbortWithStatus(http.StatusNotFound)
 					return
 				} else {
-					c.Error(errors.New(err, c, "userFollowsHandler"))
+					c.Error(errors.New(err, c, "userFollowingsHandler"))
 					return
 				}
 			}
@@ -271,7 +270,7 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			WHERE P.username = $1
 			UNION
 			SELECT P.username, P.post_text, P.post_date
-			FROM Posts P, Follows F
+			FROM Posts P, Followings F
 			WHERE F.username = $1 AND P.username = F.follows) AS P
 		ORDER BY P.post_date DESC
 		`

@@ -9,7 +9,7 @@ CREATE TABLE Users (
 	PRIMARY KEY (username)
 );
 
-CREATE TABLE Follows (
+CREATE TABLE Followings (
 	username VARCHAR,
 	follows VARCHAR,
 	state FOLLOWS_STATE,

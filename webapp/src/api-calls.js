@@ -28,7 +28,7 @@ export const LandingPageUrl = 'http://localhost:8080';
  */
 
 /**
- * @typedef {{username: string, state: string}} FollowsInfo
+ * @typedef {{follows: string, state: string}} FollowingInfo
  */
 
 /** 
@@ -135,13 +135,12 @@ export async function getUserInfo(username) {
   return [payload, true];
 }
 
-/** GET the followings information of the logged in user filtered to a certain 
-  * user.
-  * @returns {Promise<Result<FollowsInfo>>} 
+/** GET the the following information if 'username' follows 'follows' 
+  * @returns {Promise<Result<FollowingInfo>>} 
   * a Promise for single FollowsInfo object in a Result struct. 
   */
-export async function getFollowsUser(username) {
-  const [payload, status] = await genericGET('/follows?username=' + username, true);
+export async function getFollows(username, follows) {
+  const [payload, status] = await genericGET('/followings/' + username + '/follows=' + follows, true);
   if (status !== 200) {
     return [null, false];
   }

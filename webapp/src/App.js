@@ -13,9 +13,9 @@ export default function App({ username }) {
   let component;
   switch (view) {
     case "Home": component = <PostPanel />; break;
-    case "Profile": component = <ProfilePanel username={username} />; break;
+    case "Profile": component = <ProfilePanel username={username} selfUsername={username} />; break;
     case "Market": component = <MarketPanel />; break;
-    case "OtherProfile": component = <ProfilePanel username={otherProfile} />; break;
+    case "OtherProfile": component = <ProfilePanel username={otherProfile} selfUsername={username} />; break;
     default: component = <PostPanel />; break;
   }
 

@@ -222,6 +222,9 @@ func CreatePostFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		if payload.State == "requested" {
+			// TODO: For now, assume every profile is public, so every follow request is automatically accepted
+			// Later, create profile privacy field in Users table and check that field first.
+			payload.State = "follows"
 			stmt := `
 			INSERT INTO Followings(username, follows, state) VALUES ($1, $2, $3)
 			`

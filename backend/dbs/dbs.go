@@ -136,3 +136,12 @@ func (safeDB *SafeDB) InsertRow(insertStmt string, row any) error {
 		return err
 	}
 }
+
+func (safeDB *SafeDB) DeleteRow(deleteStmt string, args ...any) error {
+	stmt, err := safeDB.getStmt(deleteStmt)
+	if err != nil {
+		panic(err)
+	}
+	_, err = stmt.Exec(args...)
+	return err
+}

@@ -189,7 +189,7 @@ func CreateGetFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 
 func CreatePostFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Get the logged in loggedInAs
+		// Get the logged in user
 		loggedInAs, ok := getUsername(c)
 		if !ok {
 			c.AbortWithStatus(http.StatusUnauthorized)
@@ -240,6 +240,41 @@ func CreatePostFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, gin.H{"result": "success"})
+	}
+}
+
+func CreateDeleteFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the logged in username
+		loggedInAs, ok := getUsername(c)
+		if !ok {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Get username field selection
+		username := c.Param("username")
+		if username != loggedInAs {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Get follows field selection
+		follows := c.Query("follows")
+		if follows == "" {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		safeDB.Lock.Lock()
+		defer safeDB.Lock.Unlock()
+		stmt := "DELETE FROM Followings WHERE username=$1 AND follows=$2"
+		if err := safeDB.DeleteRow(stmt, username, follows); err != nil {
+			c.Error(errors.New(err, c, "CreateDeleteFollowingsHandler"))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"result": "success"})
 	}
 }
 

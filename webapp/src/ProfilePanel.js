@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getUserInfo, getFollowState, requestFollow } from "./api-calls";
+import { getUserInfo, getFollowState, requestFollow, unfollow, unrequest } from "./api-calls";
 import ProfileImage from "./ProfileImage";
 import FollowButton from "./FollowButton";
 import ProfileName from "./ProfileName";
@@ -36,10 +36,11 @@ export default function ProfilePanel({ username, selfUsername }) {
 
   function handleClick() {
     if (followState === "no") {
-      requestFollow(selfUsername, username).then(
-        (_) => {
-          setLoaded(false);
-      });
+      requestFollow(selfUsername, username).then(() => setLoaded(false));
+    } else if (followState === "follows") {
+      unfollow(selfUsername, username).then(() => setLoaded(false));
+    } else if (followState === "requested") {
+      unrequest(selfUsername, username).then(() => setLoaded(false));
     }
   }
 

@@ -84,6 +84,22 @@ async function genericPOST(route, withCredentials, requestBody) {
   return [payload, response.status];
 }
 
+async function genericDELETE(route, withCredentials) {
+  const url = api + route;
+  let init = {
+    method: 'DELETE',
+  }
+  if (withCredentials) {
+    init['credentials'] = 'include';
+  }
+  const response = await fetch(url, init);
+  if (response.status === 401) {
+    window.location.replace(LandingPageUrl);
+  }
+  const payload = await response.json();
+  return [payload, response.status];
+}
+
 /** POST a post to the backend server
   * @param {String} postText the text to post
   * @returns {Promise<ApiResult<null>>}
@@ -155,11 +171,23 @@ export async function getFollowState(username, follows) {
 
 export async function requestFollow(username, follows) {
   const requestBody = JSON.stringify({ "username": username, "follows": follows, "state": "requested" });
-  const [payload, status] = await genericPOST("/followings/" + username + "?follows=" + follows, true, requestBody);
+  const [_, status] = await genericPOST("/followings/" + username + "?follows=" + follows, true, requestBody);
   if (status !== 201) {
     return [null, false];
   }
-  return [payload, true];
+  return [null, true];
+}
+
+export async function unfollow(username, follows) {
+  const [_, status] = await genericDELETE("/followings/" + username + "?follows=" + follows, true);
+  if (status !== 200) {
+    return [null, false];
+  }
+  return [null, true];
+}
+
+export async function unrequest(username, follows) {
+  return await unfollow(username, follows);
 }
 
 /** GET all users that has a name or username matching the 'like' filter. 

@@ -17,5 +17,6 @@
 }
 
 #post #postText {
+  word-break: break-all;
   font-size: 1.2em;
 }

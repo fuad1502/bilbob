@@ -1,0 +1,17 @@
+#profile-image img {
+  width: 15em;
+  height: 15em;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 0.5em solid lightblue;
+  background: black;
+}
+
+#profile-image {
+  display: flex;
+  justify-content: space-around;
+}
+
+#profile-image input {
+  display: none;
+}

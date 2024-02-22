@@ -132,6 +132,86 @@ func CreateGetUserInfoHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	}
 }
 
+func CreateGetUserPicHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Check if logged in
+		sessionId, err := c.Cookie("id")
+		if err != nil || !sessions.IsLoggedIn(sessionId) {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Extract queried username
+		requestedUser := c.Param("username")
+
+		// Query database
+		query := `
+		SELECT profile_pic_path
+		FROM Users
+		WHERE username = $1
+		`
+		var path any
+		safeDB.Lock.Lock()
+		defer safeDB.Lock.Unlock()
+		if err := safeDB.QueryRow(query, &path, requestedUser); err != nil {
+			if err == sql.ErrNoRows {
+				c.AbortWithStatus(http.StatusNotFound)
+				return
+			} else {
+				c.Error(errors.New(err, c, "CreateGetUserPicHandler"))
+				return
+			}
+		}
+		if path == nil {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		c.File(path.(string))
+	}
+}
+
+func CreatePostUserPicHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the logged in user
+		loggedInAs, ok := getUsername(c)
+		if !ok {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		// Get the username
+		username := c.Param("username")
+		// Only the logged in user can update its profile picture
+		if loggedInAs != username {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// Get the picture
+		file, err := c.FormFile("profile-picture")
+		if err != nil {
+			c.Error(errors.New(err, c, "CreatePostUserPicHandler"))
+			return
+		}
+
+		// Save the picture
+		path := "/assets/" + username + "/profile-picture/" + file.Filename
+		if err := c.SaveUploadedFile(file, path); err != nil {
+			c.Error(errors.New(err, c, "CreatePostUserPicHandler"))
+			return
+		}
+
+		// Save the path to DB
+		safeDB.Lock.Lock()
+		defer safeDB.Lock.Unlock()
+		stmt := "UPDATE Users SET profile_pic_path = $1 WHERE username = $2"
+		if err := safeDB.UpdateRow(stmt, path, username); err != nil {
+			c.Error(errors.New(err, c, "CreatePostUserPicHandler"))
+			return
+		}
+		c.JSON(http.StatusCreated, gin.H{"result": "success"})
+	}
+}
+
 func CreateUserActionHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		action := c.Param("action")

@@ -52,6 +52,9 @@ async function genericGET(route, withCredentials) {
   if (contentType && contentType.indexOf("application/json") !== -1) {
     const payload = await response.json();
     return [payload, response.status];
+  } else if (contentType && contentType.indexOf("image") !== -1) {
+    const blob = await response.blob();
+    return [blob, response.status];
   } else {
     return [null, response.status];
   }
@@ -64,14 +67,16 @@ async function genericGET(route, withCredentials) {
  * @returns {Promise<ApiResult<any>>} A Promise for the returned payload and the HTTP status.
  * If the HTTP status code is 401 (Unauthorized), it automatically redirects to LandingPageUrl.
  */
-async function genericPOST(route, withCredentials, requestBody) {
+async function genericPOST(route, withCredentials, requestBody, contentType) {
   const url = api + route;
   let init = {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
     body: requestBody
+  }
+  if (contentType !== undefined) {
+    init['headers'] = {
+      'Content-Type': contentType
+    };
   }
   if (withCredentials) {
     init['credentials'] = 'include';
@@ -108,7 +113,7 @@ async function genericDELETE(route, withCredentials) {
   */
 export async function postPost(postText) {
   const requestBody = JSON.stringify({ "postText": postText });
-  const [payload, status] = await genericPOST('/posts', true, requestBody);
+  const [payload, status] = await genericPOST('/posts', true, requestBody, 'application/json');
   if (status !== 201) {
     return [null, false];
   }
@@ -171,7 +176,7 @@ export async function getFollowState(username, follows) {
 
 export async function requestFollow(username, follows) {
   const requestBody = JSON.stringify({ "username": username, "follows": follows, "state": "requested" });
-  const [_, status] = await genericPOST("/followings/" + username + "?follows=" + follows, true, requestBody);
+  const [_, status] = await genericPOST("/followings/" + username + "?follows=" + follows, true, requestBody, 'application/json');
   if (status !== 201) {
     return false;
   }
@@ -196,6 +201,25 @@ export async function logout() {
     return false;
   }
   window.location.replace(LandingPageUrl);
+  return true;
+}
+
+export async function getProfilePicture(username) {
+  const [blob, status] = await genericGET("/users/" + username + "/profile-picture", true);
+  if (status !== 200) {
+    return ["", false];
+  }
+  const objURL = URL.createObjectURL(blob);
+  return [objURL, true];
+}
+
+export async function setProfilePicture(username, file) {
+  let formData = new FormData();
+  formData.append("profile-picture", file);
+  const [_, status] = await genericPOST("/users/" + username + "/profile-picture", true, formData);
+  if (status !== 201) {
+    return false;
+  }
   return true;
 }
 

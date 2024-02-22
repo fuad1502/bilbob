@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./ProfilePanel.css";
 import { getUserInfo, getFollowState, requestFollow, unfollow, unrequest } from "./api-calls";
 import ProfileImage from "./ProfileImage";
 import FollowButton from "./FollowButton";
@@ -46,7 +47,7 @@ export default function ProfilePanel({ username, selfUsername }) {
 
   return (
     <div id="profile-panel" className="main-panel">
-      <ProfileImage />
+      <ProfileImage key={username} username={username} selfUsername={selfUsername} />
       <ProfileName animal={profileInfo.animal} name={profileInfo.name} username={profileInfo.username} />
       <FollowButton state={followState} onClick={handleClick} />
     </div>

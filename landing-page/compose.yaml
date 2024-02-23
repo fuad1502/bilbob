@@ -1,0 +1,15 @@
+services:
+  bilbob-landing-page:
+    image: bilbob-landing-page
+    build: .
+    ports:
+      - ${IP_ADDR}:${LP_PORT}:8080
+    volumes:
+      - ./handlers/resources:/bin/resources
+    environment:
+      - LP_MODE=
+      - HOSTNAME=${HOSTNAME}
+      - PROTOCOL=${PROTOCOL}
+      - API_PORT=${API_PORT}
+      - WEBAPP_PORT=${WEBAPP_PORT}
+

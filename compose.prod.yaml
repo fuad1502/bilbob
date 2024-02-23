@@ -6,6 +6,8 @@ services:
       dockerfile: data.Dockerfile
     environment:
       POSTGRES_PASSWORD=secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
   api:
     image: bilbob-api
     build:
@@ -13,6 +15,8 @@ services:
       dockerfile: api.Dockerfile
     ports:
       - ${IP_ADDR}:${REACT_APP_API_PORT}:8080
+    volumes:
+      - assets:/assets
     environment:
       - DB_HOST=data
       - DB_USER=postgres
@@ -23,7 +27,6 @@ services:
       - LANDING_PAGE_PORT=${REACT_APP_LANDING_PAGE_PORT}
       - WEBAPP_PORT=${REACT_APP_WEBAPP_PORT}
       - GIN_MODE=release
-    stop_grace_period: 1s
   landing-page:
     image: bilbob-landing-page
     build:
@@ -38,7 +41,6 @@ services:
       - WEBAPP_PORT=${REACT_APP_WEBAPP_PORT}
     volumes:
       - ./landing-page/resources:/go/bin/resources
-    stop_grace_period: 1s
   webapp:
     image: bilbob-webapp-prod
     build:
@@ -46,4 +48,7 @@ services:
       dockerfile: webapp/prod.Dockerfile
     ports:
       - ${IP_ADDR}:${REACT_APP_WEBAPP_PORT}:3000
-    stop_grace_period: 1s
+
+volumes:
+  pgdata:
+  assets:

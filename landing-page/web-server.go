@@ -74,8 +74,8 @@ func wrapCORSHandler(handler func(http.ResponseWriter, *http.Request)) func(http
 }
 
 func overwriteApiEndpointJS() error {
-	content := fmt.Sprintf("export var api = '%v';", apiEndpoint)
-	return os.WriteFile("resources/js/api-endpoint.js", []byte(content), 0644)
+	content := fmt.Sprintf("export var api = '%v';\nexport var webappUrl = '%v';", apiEndpoint, webappUrl)
+	return os.WriteFile("resources/js/urls.js", []byte(content), 0644)
 }
 
 func main() {

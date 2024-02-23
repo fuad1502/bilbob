@@ -1,8 +1,7 @@
 import FormHandler from './form-handler.js';
 import { checkUsernameExists, registerUser, verifyUser } from './api-calls.js';
 import { setFloatingMessageError, setFloatingMessageSuccess } from './floating-message.js';
-
-const WebappUrl = "http://localhost:3000";
+import { webappUrl } from './urls.js';
 
 // TODO: Check if stored session_id is still authorized, if it is, redirect to webapp
 
@@ -55,7 +54,7 @@ document.querySelector('#signup form').addEventListener('submit', async function
   }
 
   // Register the user through the API.
-  status = await registerUser({username: username.value, password: password.value, name: name.value, animal: animal.value});
+  status = await registerUser({ username: username.value, password: password.value, name: name.value, animal: animal.value });
   if (status === 201) {
     showLogin();
     setFloatingMessageSuccess('User account created successfully!');
@@ -75,7 +74,7 @@ const login_password = document.querySelector('#login form input[name="password"
 document.querySelector('#login form').addEventListener('submit', async function(event) {
   event.preventDefault();
   // TODO: Check if the username and password are correct.
-  const [verified, status] = await verifyUser({username: login_username.value, password: login_password.value});
+  const [verified, status] = await verifyUser({ username: login_username.value, password: login_password.value });
   if (status == 500) {
     setFloatingMessageError('Internal server error');
     return;
@@ -85,5 +84,5 @@ document.querySelector('#login form').addEventListener('submit', async function(
     return;
   }
   setFloatingMessageSuccess('Login successful');
-  window.location.replace(WebappUrl);
+  window.location.replace(webappUrl);
 });

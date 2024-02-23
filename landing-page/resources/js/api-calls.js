@@ -1,5 +1,5 @@
 // Description: This file contains all the API calls that the client makes to the server.
-import { api } from "./api-endpoint.js";
+import { api } from "./urls.js";
 
 /** Checks if a username exists in the database
  * @param {String} username.

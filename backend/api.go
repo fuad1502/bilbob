@@ -26,6 +26,8 @@ func main() {
 		if err == nil {
 			connected = true
 			break
+		} else {
+			log.Printf("Connection failed: %v\n", err)
 		}
 		time.Sleep(time.Second)
 		log.Println("Retrying database connection...")
@@ -34,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println("Connected to the database!")
-	defer safeDB.DB.Close()
+	defer safeDB.Close()
 
 	// Create a new router
 	router := gin.Default()

@@ -50,8 +50,6 @@ func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 
 	// Query the database for the user
 	query := "SELECT username FROM Users WHERE username = $1"
-	safeDB.Lock.Lock()
-	defer safeDB.Lock.Unlock()
 	if err := safeDB.QueryRow(query, &username, username); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusOK, gin.H{"exists": false})
@@ -71,7 +69,6 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 	// Query the database for the user's salt & hash
 	query := "SELECT password FROM Users WHERE username = $1"
 	var saltAndHash string
-	safeDB.Lock.Lock()
 	if err := safeDB.QueryRow(query, &saltAndHash, username); err != nil {
 		if err == sql.ErrNoRows {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -81,7 +78,6 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 			return
 		}
 	}
-	safeDB.Lock.Unlock()
 
 	// Get the submitted password from the URL
 	submittedPassword := c.Query("password")
@@ -120,8 +116,6 @@ func CreateGetUserInfoHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		WHERE username = $1
 		`
 		var userInfo UserInfo
-		safeDB.Lock.Lock()
-		defer safeDB.Lock.Unlock()
 		if err := safeDB.QueryRow(query, &userInfo, requestedUser); err != nil {
 			if err == sql.ErrNoRows {
 				c.AbortWithStatus(http.StatusNotFound)
@@ -156,8 +150,6 @@ func CreateGetUserPicHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		WHERE username = $1
 		`
 		var path any
-		safeDB.Lock.Lock()
-		defer safeDB.Lock.Unlock()
 		if err := safeDB.QueryRow(query, &path, requestedUser); err != nil {
 			if err == sql.ErrNoRows {
 				c.AbortWithStatus(http.StatusNotFound)
@@ -206,8 +198,6 @@ func CreatePostUserPicHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		// Save the path to DB
-		safeDB.Lock.Lock()
-		defer safeDB.Lock.Unlock()
 		stmt := "UPDATE Users SET profile_pic_path = $1 WHERE username = $2"
 		if err := safeDB.UpdateRow(stmt, path, username); err != nil {
 			c.Error(errors.New(err, c, "CreatePostUserPicHandler"))
@@ -313,8 +303,6 @@ func CreatePostFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			stmt := `
 			INSERT INTO Followings(username, follows, state) VALUES ($1, $2, $3)
 			`
-			safeDB.Lock.Lock()
-			defer safeDB.Lock.Unlock()
 			if err := safeDB.InsertRow(stmt, &payload); err != nil {
 				c.Error(errors.New(err, c, "CreatePostFollowingsHandler"))
 				return
@@ -351,8 +339,6 @@ func CreateDeleteFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			return
 		}
 
-		safeDB.Lock.Lock()
-		defer safeDB.Lock.Unlock()
 		stmt := "DELETE FROM Followings WHERE username=$1 AND follows=$2"
 		if err := safeDB.DeleteRow(stmt, username, follows); err != nil {
 			c.Error(errors.New(err, c, "CreateDeleteFollowingsHandler"))
@@ -388,8 +374,6 @@ func CreateGetUsersHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		FROM Users
 		WHERE LOWER(name) LIKE $1 OR LOWER(username) LIKE $1
 		`
-		safeDB.Lock.Lock()
-		defer safeDB.Lock.Unlock()
 		userInfos := make([]UserInfo, 0)
 		if newUserInfos, err := safeDB.Query(query, userInfos, like); err != nil {
 			c.Error(errors.New(err, c, "CreateGetUsersHandler"))
@@ -419,8 +403,6 @@ func CreatePostUserHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		// Insert the user into the database
 		stmt := "INSERT INTO Users (username, password, name, animal) VALUES ($1, $2, $3, $4)"
 		user.Password = saltAndHash
-		safeDB.Lock.Lock()
-		defer safeDB.Lock.Unlock()
 		if err = safeDB.InsertRow(stmt, &user); err != nil {
 			c.Error(errors.New(err, c, "createPostUserHandler"))
 			return
@@ -451,8 +433,6 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			WHERE F.username = $1 AND P.username = F.follows) AS P
 		ORDER BY P.post_date DESC
 		`
-		safeDB.Lock.Lock()
-		defer safeDB.Lock.Unlock()
 		posts := make([]Post, 0)
 		if newPosts, err := safeDB.Query(query, posts, username); err != nil {
 			c.Error(errors.New(err, c, "CreateGetPostsHandler"))
@@ -484,8 +464,6 @@ func CreatePostPostHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		VALUES ($1, $2, $3)
 		`
 		post := Post{username, payload.PostText, time.Now()}
-		safeDB.Lock.Lock()
-		defer safeDB.Lock.Unlock()
 		if err := safeDB.InsertRow(stmt, &post); err != nil {
 			c.Error(errors.New(err, c, "CreatePostPostHandler"))
 			return

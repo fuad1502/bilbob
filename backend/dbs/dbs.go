@@ -10,8 +10,8 @@ import (
 
 // SafeDB is a wrapper around sql.DB that provides a mutex to make it safe for concurrent use
 type SafeDB struct {
-	Lock  sync.Mutex
-	DB    *sql.DB
+	lock  sync.Mutex
+	db    *sql.DB
 	stmts map[string]*sql.Stmt
 }
 
@@ -20,21 +20,33 @@ func ConnectPGDB(host string, user string, password string, dbname string) (*Saf
 	connStr := fmt.Sprintf("host=%v user=%v password=%v dbname=%v sslmode=disable", host, user, password, dbname)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
+		db.Close()
 		return nil, errors.New("Failed to connect to the database: " + err.Error())
 	}
 	if err := db.Ping(); err != nil {
 		db.Close()
 		return nil, errors.New("Failed to ping the database: " + err.Error())
 	}
-	return &SafeDB{DB: db}, nil
+	return &SafeDB{db: db, stmts: make(map[string]*sql.Stmt)}, nil
+}
+
+func (safeDB *SafeDB) Close() error {
+	return safeDB.db.Close()
 }
 
 func (safeDB *SafeDB) getStmt(query string) (*sql.Stmt, error) {
+	safeDB.lock.Lock()
+	defer safeDB.lock.Unlock()
 	stmt, ok := safeDB.stmts[query]
 	if ok {
 		return stmt, nil
 	}
-	return safeDB.DB.Prepare(query)
+	if stmt, err := safeDB.db.Prepare(query); err != nil {
+		return nil, err
+	} else {
+		safeDB.stmts[query] = stmt
+		return stmt, nil
+	}
 }
 
 func (safeDB *SafeDB) QueryRow(query string, row any, args ...any) error {

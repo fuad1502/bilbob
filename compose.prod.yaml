@@ -22,6 +22,7 @@ services:
       - PROTOCOL=${REACT_APP_PROTOCOL}
       - LANDING_PAGE_PORT=${REACT_APP_LANDING_PAGE_PORT}
       - WEBAPP_PORT=${REACT_APP_WEBAPP_PORT}
+      - GIN_MODE=release
     stop_grace_period: 1s
   landing-page:
     image: bilbob-landing-page

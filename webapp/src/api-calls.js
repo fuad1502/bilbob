@@ -3,11 +3,13 @@
 /** API endpoint
  * @type string
  */
-const api = 'http://localhost:8081';
+const api = process.env.REACT_APP_PROTOCOL + process.env.REACT_APP_HOSTNAME + ':' + process.env.REACT_APP_API_PORT;
+console.log("api = " + api)
 /** Landing Page URL
  * @type string
  */
-export const LandingPageUrl = 'http://localhost:8080';
+const landingPageUrl = process.env.REACT_APP_PROTOCOL + process.env.REACT_APP_HOSTNAME + ':' + process.env.REACT_APP_LANDING_PAGE_PORT;
+console.log("landingPageUrl = " + landingPageUrl)
 
 /**
  * @template T
@@ -46,7 +48,7 @@ async function genericGET(route, withCredentials) {
   }
   const response = await fetch(url, init);
   if (response.status === 401) {
-    window.location.replace(LandingPageUrl);
+    window.location.replace(landingPageUrl);
   }
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.indexOf("application/json") !== -1) {
@@ -83,7 +85,7 @@ async function genericPOST(route, withCredentials, requestBody, contentType) {
   }
   const response = await fetch(url, init);
   if (response.status === 401) {
-    window.location.replace(LandingPageUrl);
+    window.location.replace(landingPageUrl);
   }
   const payload = await response.json();
   return [payload, response.status];
@@ -99,7 +101,7 @@ async function genericDELETE(route, withCredentials) {
   }
   const response = await fetch(url, init);
   if (response.status === 401) {
-    window.location.replace(LandingPageUrl);
+    window.location.replace(landingPageUrl);
   }
   const payload = await response.json();
   return [payload, response.status];
@@ -200,7 +202,7 @@ export async function logout() {
   if (status !== 200) {
     return false;
   }
-  window.location.replace(LandingPageUrl);
+  window.location.replace(landingPageUrl);
   return true;
 }
 

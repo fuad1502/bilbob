@@ -1,10 +1,15 @@
 package middlewares
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
 )
+
+var webappUrl = os.Getenv("PROTOCOL") + os.Getenv("HOSTNAME") + ":" + os.Getenv("WEBAPP_PORT")
+var landingPageUrl = os.Getenv("PROTOCOL") + os.Getenv("HOSTNAME") + ":" + os.Getenv("LANDING_PAGE_PORT")
 
 func ErrorMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -33,7 +38,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		} else {
 			allowedOrigin = origins[0]
 			log.Printf("Request Origin: %v\n", allowedOrigin)
-			if allowedOrigin != "http://localhost:3000" && allowedOrigin != "http://localhost:8080" {
+			if allowedOrigin != webappUrl && allowedOrigin != landingPageUrl {
 				allowedOrigin = ""
 			}
 		}

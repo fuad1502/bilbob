@@ -1,8 +1,5 @@
 // Description: This file contains all the API calls that the client makes to the server.
-
-/** API endpoint
- */
-const api = 'http://localhost:8081';
+import { api } from "./api-endpoint.js";
 
 /** Checks if a username exists in the database
  * @param {String} username.
@@ -32,7 +29,7 @@ export async function registerUser(user) {
     },
     body: requestBody
   });
-  return response.status; 
+  return response.status;
 }
 
 /** Checks if the username and password combination exists in the database
@@ -41,8 +38,8 @@ export async function registerUser(user) {
  */
 export async function verifyUser(user) {
   const url = api + '/users/' + user.username + '/login?password=' + user.password;
-  const response = await fetch(url, 
-    {credentials: 'include'}
+  const response = await fetch(url,
+    { credentials: 'include' }
   );
   if (response.status != 200) {
     return [false, response.status];

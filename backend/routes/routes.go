@@ -3,6 +3,7 @@ package routes
 import (
 	"database/sql"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -38,6 +39,10 @@ type Post struct {
 	PostText string    `json:"postText"`
 	PostDate time.Time `json:"postDate"`
 }
+
+var hostname = os.Getenv("HOSTNAME")
+
+const session_timeout = 3600
 
 func userExistsHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 	// Get the username from the URL
@@ -89,7 +94,7 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 	}
 	if verified {
 		sessionId := sessions.CreateSession(username)
-		c.SetCookie("id", sessionId, 3600, "/", "localhost", false, true)
+		c.SetCookie("id", sessionId, session_timeout, "/", hostname, false, true)
 		c.JSON(http.StatusOK, gin.H{"verified": true})
 	} else {
 		c.JSON(http.StatusOK, gin.H{"verified": false})
@@ -514,7 +519,7 @@ func CreateLogoutHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		// Essentially delete the cookie
-		c.SetCookie("id", "", 0, "/", "localhost", false, true)
+		c.SetCookie("id", "", 0, "/", hostname, false, true)
 
 		// Return username
 		c.JSON(http.StatusOK, gin.H{"username": username})

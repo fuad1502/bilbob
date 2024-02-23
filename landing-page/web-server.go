@@ -8,7 +8,8 @@ import (
 	"regexp"
 )
 
-const webappUrl = "localhost:3000"
+var webappUrl = os.Getenv("PROTOCOL") + os.Getenv("HOSTNAME") + ":" + os.Getenv("WEBAPP_PORT")
+var apiEndpoint = os.Getenv("PROTOCOL") + os.Getenv("HOSTNAME") + ":" + os.Getenv("API_PORT")
 
 func loadFile(filename string) (string, string, error) {
 	ext, err := getExtension(filename)
@@ -72,8 +73,16 @@ func wrapCORSHandler(handler func(http.ResponseWriter, *http.Request)) func(http
 	}
 }
 
+func overwriteApiEndpointJS() error {
+	content := fmt.Sprintf("export var api = '%v';", apiEndpoint)
+	return os.WriteFile("resources/js/api-endpoint.js", []byte(content), 0644)
+}
+
 func main() {
 	log.SetPrefix("[Bilbob WebServer]: ")
+	if err := overwriteApiEndpointJS(); err != nil {
+		panic(err)
+	}
 	http.HandleFunc("/", wrapCORSHandler(landingPageHandler))
 	log.Println("Bilbob Web Server is running on port 8080! 🐱")
 	log.Fatal(http.ListenAndServe(":8080", nil))

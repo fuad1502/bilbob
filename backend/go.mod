@@ -1,4 +1,4 @@
-module github.com/fuad1502/bilbob-backend
+module github.com/fuad1502/bilbob/backend
 
 go 1.21.6
 

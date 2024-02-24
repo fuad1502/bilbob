@@ -3,13 +3,10 @@ package middlewares
 import (
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/fuad1502/bilbob/backend/environ"
 	"github.com/gin-gonic/gin"
 )
-
-var webappUrl = os.Getenv("PROTOCOL") + os.Getenv("HOSTNAME") + ":" + os.Getenv("WEBAPP_PORT")
-var landingPageUrl = os.Getenv("PROTOCOL") + os.Getenv("HOSTNAME") + ":" + os.Getenv("LANDING_PAGE_PORT")
 
 func ErrorMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -38,14 +35,18 @@ func CORSMiddleware() gin.HandlerFunc {
 		} else {
 			allowedOrigin = origins[0]
 			log.Printf("Request Origin: %v\n", allowedOrigin)
-			if allowedOrigin != webappUrl && allowedOrigin != landingPageUrl {
+			if allowedOrigin != environ.WebappUrl && allowedOrigin != environ.LandingPageUrl {
 				allowedOrigin = ""
 			}
 		}
-		c.Writer.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Origin",
+			allowedOrigin)
+		c.Writer.Header().Set("Access-Control-Allow-Credentials",
+			"true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers",
+			"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods",
+			"POST, OPTIONS, GET, PUT, DELETE")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)

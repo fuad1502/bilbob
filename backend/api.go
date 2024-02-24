@@ -13,9 +13,9 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
-	"github.com/fuad1502/bilbob-backend/dbs"
-	"github.com/fuad1502/bilbob-backend/middlewares"
-	"github.com/fuad1502/bilbob-backend/routes"
+	"github.com/fuad1502/bilbob/backend/dbs"
+	"github.com/fuad1502/bilbob/backend/middlewares"
+	"github.com/fuad1502/bilbob/backend/routes"
 )
 
 func main() {

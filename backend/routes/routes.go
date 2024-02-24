@@ -3,15 +3,15 @@ package routes
 import (
 	"database/sql"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/fuad1502/bilbob-backend/dbs"
-	"github.com/fuad1502/bilbob-backend/errors"
-	"github.com/fuad1502/bilbob-backend/passwords"
-	"github.com/fuad1502/bilbob-backend/sessions"
+	"github.com/fuad1502/bilbob/backend/dbs"
+	"github.com/fuad1502/bilbob/backend/environ"
+	"github.com/fuad1502/bilbob/backend/errors"
+	"github.com/fuad1502/bilbob/backend/passwords"
+	"github.com/fuad1502/bilbob/backend/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,8 +39,6 @@ type Post struct {
 	PostText string    `json:"postText"`
 	PostDate time.Time `json:"postDate"`
 }
-
-var hostname = os.Getenv("HOSTNAME")
 
 const session_timeout = 3600
 
@@ -90,7 +88,7 @@ func userLoginHandler(safeDB *dbs.SafeDB, c *gin.Context) {
 	}
 	if verified {
 		sessionId := sessions.CreateSession(username)
-		c.SetCookie("id", sessionId, session_timeout, "/", hostname, false, true)
+		c.SetCookie("id", sessionId, session_timeout, "/", environ.Hostname, false, true)
 		c.JSON(http.StatusOK, gin.H{"verified": true})
 	} else {
 		c.JSON(http.StatusOK, gin.H{"verified": false})
@@ -497,7 +495,7 @@ func CreateLogoutHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 
 		// Essentially delete the cookie
-		c.SetCookie("id", "", 0, "/", hostname, false, true)
+		c.SetCookie("id", "", 0, "/", environ.Hostname, false, true)
 
 		// Return username
 		c.JSON(http.StatusOK, gin.H{"username": username})

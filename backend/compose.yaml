@@ -1,0 +1,26 @@
+services:
+  bilbob-api:
+    image: bilbob-api
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    ports:
+      - ${IP_ADDR}:${API_PORT}:8080
+    environment:
+      - DB_HOST=bilbob-data
+      - DB_USER=postgres
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=postgres
+      - GIN_MODE=
+      - HOSTNAME=${HOSTNAME}
+      - PROTOCOL=${PROTOCOL}
+      - LP_PORT=${LP_PORT}
+      - WEBAPP_PORT=${WEBAPP_PORT}
+  bilbob-data:
+    image: bilbob-data
+    build:
+      context: .
+      dockerfile: data.Dockerfile
+    environment:
+      POSTGRES_PASSWORD=${DB_PASSWORD}
+

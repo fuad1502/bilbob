@@ -3,13 +3,12 @@ import { useRef } from 'react';
 import './PostSubmitForm.css'
 import { postPost } from './api-calls';
 
-export default function PostSubmitForm({onSubmit}) {
+export default function PostSubmitForm({ username, onSubmit }) {
   const ref = useRef(null);
 
-  function handleSubmit (event) {
+  function handleSubmit(event) {
     event.preventDefault();
-    postPost(ref.current.value).then((response) => {
-      const [_, ok] = response;
+    postPost(username, ref.current.value).then((ok) => {
       if (ok) {
         onSubmit();
       } else {

@@ -1,5 +1,5 @@
 import FormHandler from './form-handler.js';
-import { checkUsernameExists, registerUser, verifyUser } from './api-calls.js';
+import { checkUsernameExists, registerUser, login } from './api-calls.js';
 import { setFloatingMessageError, setFloatingMessageSuccess } from './floating-message.js';
 import { webappUrl } from './urls.js';
 
@@ -25,6 +25,11 @@ signupFormHandler.addFormInput('name', 'Please input your name.', 'Name can only
 signupFormHandler.addFormInput('username', 'Please input a username.', 'Username can only contain letters, numbers, and underscores.');
 signupFormHandler.addFormInput('password', 'Please input a password.', 'Password must be at least 8 characters long and contain at least one letter, one number, and one special character.');
 
+// Create a form handler for the login form.
+const loginFormHandler = new FormHandler('login');
+loginFormHandler.addFormInput('username', 'Please input a username.', '');
+loginFormHandler.addFormInput('password', 'Please input a password.', '');
+
 // Handle signup form submission.
 const password = document.querySelector('#signup form input[name="password"]');
 const confirmPassword = document.querySelector('#signup form input[name="confirm-password"]');
@@ -38,13 +43,15 @@ document.querySelector('#signup form').addEventListener('submit', async function
   // Check if the passwords match.
   if (password.value !== confirmPassword.value) {
     confirmPasswordError.textContent = 'Passwords do not match.';
+    confirmPasswordError.className = 'error active';
     return;
   }
   confirmPasswordError.textContent = '';
+  confirmPasswordError.className = '';
 
   // Check if the username is already taken.
-  let [exists, status] = await checkUsernameExists(username.value);
-  if (status != 200) {
+  let [exists, ok] = await checkUsernameExists(username.value);
+  if (!ok) {
     setFloatingMessageError('Internal server error');
     return;
   }
@@ -54,8 +61,8 @@ document.querySelector('#signup form').addEventListener('submit', async function
   }
 
   // Register the user through the API.
-  status = await registerUser({ username: username.value, password: password.value, name: name.value, animal: animal.value });
-  if (status === 201) {
+  ok = await registerUser({ username: username.value, password: password.value, name: name.value, animal: animal.value });
+  if (ok) {
     showLogin();
     setFloatingMessageSuccess('User account created successfully!');
   } else {
@@ -63,23 +70,17 @@ document.querySelector('#signup form').addEventListener('submit', async function
   }
 });
 
-// Create a form handler for the login form.
-const loginFormHandler = new FormHandler('login');
-loginFormHandler.addFormInput('username', 'Please input a username.', '');
-loginFormHandler.addFormInput('password', 'Please input a password.', '');
-
 // Handle login form submission.
 const login_username = document.querySelector('#login form input[name="username"]');
 const login_password = document.querySelector('#login form input[name="password"]');
 document.querySelector('#login form').addEventListener('submit', async function(event) {
   event.preventDefault();
-  // TODO: Check if the username and password are correct.
-  const [verified, status] = await verifyUser({ username: login_username.value, password: login_password.value });
-  if (status == 500) {
+  const [verified, ok] = await login({ username: login_username.value, password: login_password.value });
+  if (!ok) {
     setFloatingMessageError('Internal server error');
     return;
   }
-  if (status != 200 || !verified) {
+  if (!verified) {
     setFloatingMessageError('Invalid username or password');
     return;
   }

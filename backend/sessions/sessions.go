@@ -20,6 +20,10 @@ func CreateSession(username string) string {
 	return sessionId
 }
 
+func DeleteSession(sessionId string) {
+	delete(sessions, sessionId)
+}
+
 func IsLoggedIn(sessionId string) bool {
 	sess, ok := sessions[sessionId]
 	if ok {

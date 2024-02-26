@@ -8,7 +8,7 @@ console.log("api = " + api)
 /** Landing Page URL
  * @type string
  */
-const landingPageUrl = process.env.REACT_APP_PROTOCOL + process.env.REACT_APP_HOSTNAME + ':' + process.env.REACT_APP_LANDING_PAGE_PORT;
+const landingPageUrl = process.env.REACT_APP_PROTOCOL + process.env.REACT_APP_HOSTNAME + ':' + process.env.REACT_APP_LP_PORT;
 console.log("landingPageUrl = " + landingPageUrl)
 
 /**
@@ -22,7 +22,7 @@ console.log("landingPageUrl = " + landingPageUrl)
  */
 
 /**
- * @typedef {{username: string, postText: string}} Post
+ * @typedef {{username: string, postText: string, postDate: string}} Post
  */
 
 /**
@@ -63,17 +63,23 @@ async function genericGET(route, withCredentials) {
 }
 
 /** 
- * A generic POST request to the API endpoint.
+ * A generic POST/PUT request to the API endpoint.
  * @param {string} route API route.
  * @param {boolean} withCredentials a flag indicating whether to include Cookie or not.
+ * @param {any} requestBody
+ * @param {String} contentType
+ * @param {boolean} isPut
  * @returns {Promise<ApiResult<any>>} A Promise for the returned payload and the HTTP status.
  * If the HTTP status code is 401 (Unauthorized), it automatically redirects to LandingPageUrl.
  */
-async function genericPOST(route, withCredentials, requestBody, contentType) {
+async function genericPOST(route, withCredentials, requestBody, contentType, isPut = false) {
   const url = api + route;
   let init = {
     method: 'POST',
     body: requestBody
+  }
+  if (isPut) {
+    init['method'] = 'PUT';
   }
   if (contentType !== undefined) {
     init['headers'] = {
@@ -108,26 +114,27 @@ async function genericDELETE(route, withCredentials) {
 }
 
 /** POST a post to the backend server
-  * @param {String} postText the text to post
-  * @returns {Promise<ApiResult<null>>}
-  * a Promise for a null object wrapped with an HTTP status code. 
-  * 201 (Created) status code signifies a sucessful POST.
+  * @param {String} username
+  * @param {String} postText
+  * @returns {Promise<boolean>} Returns true if post is posted.
   */
-export async function postPost(postText) {
-  const requestBody = JSON.stringify({ "postText": postText });
-  const [payload, status] = await genericPOST('/posts', true, requestBody, 'application/json');
+export async function postPost(username, postText) {
+  const requestBody = JSON.stringify({ username: username, postText: postText });
+  const [_, status] = await genericPOST('/posts', true, requestBody, 'application/json');
   if (status !== 201) {
-    return [null, false];
+    return false;
   }
-  return [payload, true];
+  return true;
 }
 
 /** GET posts from the backend server.
+ * @param {String} username
+ * @param {boolean} includeFollowings
  * @returns {Promise<Result<[Post]>>}
  * a Promise for an array of Post objects inside a Result struct.
  */
-export async function getPosts() {
-  const [payload, status] = await genericGET('/posts', true);
+export async function getPosts(username, includeFollowings) {
+  const [payload, status] = await genericGET('/posts?username=' + username + '&includeFollowings=' + includeFollowings.toString(), true);
   if (status !== 200) {
     return [[], false];
   }
@@ -136,7 +143,7 @@ export async function getPosts() {
 
 /** GET username of logged in session.
   * @returns {Promise<Result<string>>}
-  * a Promise for a username string inside a Result struct. 
+  * a Promise for the logged in username string inside a Result struct. 
   */
 export async function getUsername() {
   const [payload, status] = await genericGET('/authorize', true);
@@ -147,8 +154,9 @@ export async function getUsername() {
 }
 
 /** GET information about a user.
+  * @param {String} username
   * @returns {Promise<Result<UserInfo>} 
-  * a Promise for single UserInfo object inside a Result struct. 
+  * a Promise for a single UserInfo object inside a Result struct. 
   */
 export async function getUserInfo(username) {
   const [payload, status] = await genericGET('/users/' + username, true);
@@ -158,15 +166,17 @@ export async function getUserInfo(username) {
   return [payload, true];
 }
 
-/** GET the the following information if 'username' follows 'follows' 
+/** GET the the following state of 'username' in relation to 'follows'.
+  * @param {String} username
+  * @param {String} follows
   * @returns {Promise<Result<string>>} 
-  * a Promise for single FollowsInfo object in a Result struct. 
+  * a Promise for the following state inside a Result struct. 
   */
 export async function getFollowState(username, follows) {
   if (username === follows) {
     return [null, true];
   }
-  const [payload, status] = await genericGET('/followings/' + username + '?follows=' + follows, true);
+  const [payload, status] = await genericGET('/users/' + username + '/followings?username=' + follows, true);
   if (status === 404) {
     return ["no", true];
   }
@@ -177,8 +187,8 @@ export async function getFollowState(username, follows) {
 }
 
 export async function requestFollow(username, follows) {
-  const requestBody = JSON.stringify({ "username": username, "follows": follows, "state": "requested" });
-  const [_, status] = await genericPOST("/followings/" + username + "?follows=" + follows, true, requestBody, 'application/json');
+  const requestBody = JSON.stringify({ "username": follows, "state": "requested" });
+  const [_, status] = await genericPOST("/users/" + username + "/followings", true, requestBody, 'application/json');
   if (status !== 201) {
     return false;
   }
@@ -186,7 +196,7 @@ export async function requestFollow(username, follows) {
 }
 
 export async function unfollow(username, follows) {
-  const [_, status] = await genericDELETE("/followings/" + username + "?follows=" + follows, true);
+  const [_, status] = await genericDELETE("/users/" + username + "/followings/" + follows, true);
   if (status !== 200) {
     return false;
   }
@@ -207,7 +217,7 @@ export async function logout() {
 }
 
 export async function getProfilePicture(username) {
-  const [blob, status] = await genericGET("/users/" + username + "/profile-picture", true);
+  const [blob, status] = await genericGET("/users/" + username + "/profilePicture", true);
   if (status !== 200) {
     return ["", false];
   }
@@ -218,7 +228,7 @@ export async function getProfilePicture(username) {
 export async function setProfilePicture(username, file) {
   let formData = new FormData();
   formData.append("profile-picture", file);
-  const [_, status] = await genericPOST("/users/" + username + "/profile-picture", true, formData);
+  const [_, status] = await genericPOST("/users/" + username + "/profilePicture", true, formData, undefined, true);
   if (status !== 201) {
     return false;
   }

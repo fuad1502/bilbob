@@ -43,35 +43,31 @@ func main() {
 	log.Println("Connected to the database!")
 	defer safeDB.Close()
 
-	// Create a new router
 	router := gin.Default()
-
-	// Add CORS middleware
 	router.Use(middlewares.CORSMiddleware())
-
-	// Add error middleware
 	router.Use(middlewares.ErrorMiddleware())
-
-	// Add users route
-	router.GET("/users/:username/:action", routes.CreateUserActionHandler(safeDB))
-	router.GET("/users/:username", routes.CreateGetUserInfoHandler(safeDB))
-	router.GET("/users/:username/profile-picture", routes.CreateGetUserPicHandler(safeDB))
-	router.POST("/users/:username/profile-picture", routes.CreatePostUserPicHandler(safeDB))
+	// Users resource endpoint.
 	router.GET("/users", routes.CreateGetUsersHandler(safeDB))
+	router.GET("/users/:username", routes.CreateGetUserHandler(safeDB))
 	router.POST("/users", routes.CreatePostUserHandler(safeDB))
-
-	// Add followings route
-	router.GET("/followings/:username", routes.CreateGetFollowingsHandler(safeDB))
-	router.POST("/followings/:username", routes.CreatePostFollowingsHandler(safeDB))
-	router.DELETE("/followings/:username", routes.CreateDeleteFollowingsHandler(safeDB))
-
-	// Add posts route
+	// Profile picture resource endpoint.
+	router.GET("/users/:username/profilePicture", routes.CreateGetProfilePictureHandler(safeDB))
+	router.PUT("/users/:username/profilePicture", routes.CreatePutProfilePictureHandler(safeDB))
+	// Followings resource endpoint.
+	router.GET("/users/:username/followings", routes.CreateGetFollowingsHandler(safeDB))
+	router.POST("/users/:username/followings", routes.CreatePostFollowingHandler(safeDB))
+	router.DELETE("/users/:username/followings/:followingUsername", routes.CreateDeleteFollowingHandler(safeDB))
+	// Posts resource resource endpoint.
+	// parameters: username=$&includeFollowings=$.
 	router.GET("/posts", routes.CreateGetPostsHandler(safeDB))
 	router.POST("/posts", routes.CreatePostPostHandler(safeDB))
-
-	// Add authorization route
-	router.GET("/authorize", routes.CreateAuthorizeHandler(safeDB))
+	// Non-resources API
+	// parameters: username=$.
+	router.GET("/exists", routes.CreateExistsHandler(safeDB))
+	// parameters: username=$&password=$.
+	router.GET("/login", routes.CreateLoginHandler(safeDB))
 	router.GET("/logout", routes.CreateLogoutHandler(safeDB))
+	router.GET("/authorize", routes.CreateAuthorizeHandler(safeDB))
 
 	// Run the server
 	log.Println("Web service running")

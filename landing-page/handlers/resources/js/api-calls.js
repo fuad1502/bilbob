@@ -3,21 +3,21 @@ import { api } from "./urls.js";
 
 /** Checks if a username exists in the database
  * @param {String} username.
- * @return {Promise<[boolean, number]>} [exists, HTTP response status] Promise. Ignore exists if HTTP response status is not 200.
+ * @return {Promise<[exists: boolean, ok: boolean]>}
  */
 export async function checkUsernameExists(username) {
-  const url = api + '/users/' + username + '/exists';
+  const url = api + '/exists?username=' + username;
   const response = await fetch(url);
   if (response.status != 200) {
-    return [false, response.status];
+    return [false, false];
   }
   const responseBody = await response.json();
-  return [responseBody.exists, response.status];
+  return [responseBody.exists, true];
 }
 
 /** Registers a user to the database
  * @param {{String, String, String, String}} user{username, password, name, animal} 
- * @return {Promise<number>} HTTP response status Promise. If successful, should return 201.
+ * @return {Promise<boolean>} Promise<ok>
   */
 export async function registerUser(user) {
   const requestBody = JSON.stringify(user);
@@ -29,21 +29,25 @@ export async function registerUser(user) {
     },
     body: requestBody
   });
-  return response.status;
+  if (response.status == 201) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
-/** Checks if the username and password combination exists in the database
+/** Login the user if username password combination is verified
  * @param {{String, String}} user{username, password}
- * @return {Promise<[boolean, number]>} [verified, HTTP response status] Promise. Ignore verified if HTTP response status is not 200.
+ * @return {Promise<[verified: boolean, ok: boolean]>}
  */
-export async function verifyUser(user) {
-  const url = api + '/users/' + user.username + '/login?password=' + user.password;
+export async function login(user) {
+  const url = api + '/login?username=' + user.username + '&password=' + user.password;
   const response = await fetch(url,
     { credentials: 'include' }
   );
   if (response.status != 200) {
-    return [false, response.status];
+    return [false, false];
   }
   const responseBody = await response.json();
-  return [responseBody.verified, response.status];
+  return [responseBody.verified, true];
 }

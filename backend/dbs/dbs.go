@@ -8,12 +8,20 @@ import (
 	"sync"
 )
 
+type User struct {
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Animal   string `json:"animal"`
+}
+
 // SafeDB is a wrapper around sql.DB that provides a mutex to make it safe for concurrent use
 type SafeDB struct {
 	lock  sync.Mutex
 	db    *sql.DB
 	stmts map[string]*sql.Stmt
 }
+
+var ErrNoRows = sql.ErrNoRows
 
 // ConnectDB connects to a Postgres database and checks if the connection is working and returns a SafeDB struct pointer if successful
 func ConnectPGDB(host string, user string, password string, dbname string) (*SafeDB, error) {
@@ -32,6 +40,23 @@ func ConnectPGDB(host string, user string, password string, dbname string) (*Saf
 
 func (safeDB *SafeDB) Close() error {
 	return safeDB.db.Close()
+}
+
+func (safeDB *SafeDB) QueryGetUser(username string) (User, error) {
+	query := `
+	SELECT username, name, animal
+	FROM Users
+	WHERE username = $1
+	`
+	var user User
+	if err := safeDB.QueryRow(query, &user, username); err != nil {
+		if err == sql.ErrNoRows {
+			return User{}, ErrNoRows
+		} else {
+			return User{}, err
+		}
+	}
+	return user, nil
 }
 
 func (safeDB *SafeDB) getStmt(query string) (*sql.Stmt, error) {
@@ -77,7 +102,7 @@ func (safeDB *SafeDB) QueryRow(query string, row any, args ...any) error {
 func (safeDB *SafeDB) Query(query string, rows any, args ...any) (any, error) {
 	t := reflect.TypeOf(rows)
 	if t.Kind() != reflect.Slice {
-		return rows, fmt.Errorf("dbs.QueryRow: rows should be of type slice")
+		return rows, fmt.Errorf("dbs.Query: rows should be of type slice")
 	}
 	rowsRefl := reflect.ValueOf(rows)
 

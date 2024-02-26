@@ -3,14 +3,14 @@ import PostSubmitForm from "./PostSubmitForm"
 import Posts from "./Posts"
 import { getPosts } from "./api-calls";
 
-export default function PostPanel() {
+export default function PostPanel({ username }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!loading) {
       setLoading(true);
-      getPosts().then((result) => {
+      getPosts(username, true).then((result) => {
         const [returnedPosts, _] = result;
         setPosts(returnedPosts);
       });
@@ -23,7 +23,7 @@ export default function PostPanel() {
 
   return (
     <div id="post-panel" className="main-panel">
-      <PostSubmitForm onSubmit={handleSubmit} />
+      <PostSubmitForm username={username} onSubmit={handleSubmit} />
       <Posts posts={posts} />
     </div>
   )

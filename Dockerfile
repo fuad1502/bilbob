@@ -1,4 +1,9 @@
-FROM golang:latest AS lp-mod-download
+FROM golang:latest AS backend-mod-download
+WORKDIR /go/src/backend
+COPY backend/go.mod .
+RUN --mount=type=cache,target=/root/.cache/go-build go mod download
+
+FROM backend-mod-download AS lp-mod-download
 WORKDIR /go/src/landing-page
 COPY landing-page/go.mod .
 RUN --mount=type=cache,target=/root/.cache/go-build go mod download
@@ -12,7 +17,8 @@ FROM staticserver-mod-download AS build-staticserver
 WORKDIR /go/src
 COPY go.work .
 COPY go.work.sum .
-COPY landing-page landing-page/
+COPY backend/ backend/
+COPY landing-page/ landing-page/
 COPY staticserver/ staticserver/
 WORKDIR /go/src/staticserver
 RUN --mount=type=cache,target=/root/.cache/go-build go build -v -o /go/bin/staticserver

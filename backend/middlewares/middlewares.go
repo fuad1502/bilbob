@@ -3,6 +3,7 @@ package middlewares
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/fuad1502/bilbob/backend/environ"
 	"github.com/gin-gonic/gin"
@@ -33,10 +34,11 @@ func CORSMiddleware() gin.HandlerFunc {
 		if len(origins) == 0 {
 			allowedOrigin = ""
 		} else {
-			allowedOrigin = origins[0]
+			allowedOrigin = strings.SplitN(origins[0], ":", 2)[0]
 			if allowedOrigin != environ.WebappUrl && allowedOrigin != environ.LandingPageUrl {
 				allowedOrigin = ""
 			}
+			allowedOrigin = origins[0]
 		}
 		c.Writer.Header().Set("Access-Control-Allow-Origin",
 			allowedOrigin)

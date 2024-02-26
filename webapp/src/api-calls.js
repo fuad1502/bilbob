@@ -4,12 +4,10 @@
  * @type string
  */
 const api = process.env.REACT_APP_PROTOCOL + process.env.REACT_APP_HOSTNAME + ':' + process.env.REACT_APP_API_PORT;
-console.log("api = " + api)
 /** Landing Page URL
  * @type string
  */
-const landingPageUrl = process.env.REACT_APP_PROTOCOL + process.env.REACT_APP_HOSTNAME + ':' + process.env.REACT_APP_LP_PORT;
-console.log("landingPageUrl = " + landingPageUrl)
+const landingPageUrl = process.env.REACT_APP_PROTOCOL + process.env.REACT_APP_HOSTNAME + ':' + process.env.REACT_APP_LP_PORT + '/' + process.env.REACT_APP_LP_PATH;
 
 /**
  * @template T
@@ -209,7 +207,7 @@ export async function unrequest(username, follows) {
 
 export async function logout() {
   const [_, status] = await genericGET("/logout", true);
-  if (status !== 200) {
+  if (status !== 204) {
     return false;
   }
   window.location.replace(landingPageUrl);

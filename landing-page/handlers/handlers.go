@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -20,18 +21,18 @@ var (
 
 	// webappUrl is the URL of the webapp. This will be written dynamically depending on environment variables
 	// when a client requested urls.js.
-	webappUrl = os.Getenv("PROTOCOL") + os.Getenv("HOSTNAME") + ":" + os.Getenv("WEBAPP_PORT")
+	webappUrl = os.Getenv("PROTOCOL") + os.Getenv("WEB_SUBDOMAIN") + os.Getenv("HOSTNAME") + ":" + os.Getenv("WEBAPP_PORT")
 
 	// apiEndpoint is the API endpoint URL. This will be written dynamically depending on environment variables
 	// when a client requested urls.js.
-	apiEndpoint = os.Getenv("PROTOCOL") + os.Getenv("HOSTNAME") + ":" + os.Getenv("API_PORT")
+	apiEndpoint = os.Getenv("PROTOCOL") + os.Getenv("API_SUBDOMAIN") + os.Getenv("HOSTNAME") + ":" + os.Getenv("API_PORT")
 )
 
 // LandingPageHandler will serve static files required for interacting with the landing page.
 func LandingPageHandler(w http.ResponseWriter, r *http.Request) {
 	addCORSHeader(w, r)
 	// Get the requested file name.
-	fileName := r.URL.Path[1:]
+	fileName, _ := strings.CutPrefix(r.URL.Path, "/" + os.Getenv("LP_PATH"))
 	// If no file is requested, then we will serve the index.html file instead
 	if fileName == "" {
 		fileName = "index.html"

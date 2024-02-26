@@ -324,6 +324,8 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		var query string
 		if includeFollowings == "true" {
 			query = `
+			SELECT T.username, T.post_text, T.post_date
+			FROM (
 			SELECT P.username, P.post_text, P.post_date
 			FROM Posts AS P
 			WHERE P.username = $1
@@ -331,13 +333,15 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			SELECT P.username, P.post_text, P.post_date
 			FROM Posts AS P JOIN Followings AS F
 			ON P.username = F.follows
-			WHERE F.username = $1
+			WHERE F.username = $1) AS T
+			ORDER BY T.post_date DESC
 			`
 		} else if includeFollowings == "false" {
 			query = `
 			SELECT username, post_text, post_date
 			FROM Posts
 			WHERE username = $1
+			ORDER BY post_date DESC
 			`
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)

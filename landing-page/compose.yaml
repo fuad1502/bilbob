@@ -8,6 +8,7 @@ services:
       - ./handlers/resources:/bin/resources
     environment:
       - LP_MODE=
+      - LP_PATH=${LP_PATH}
       - HOSTNAME=${HOSTNAME}
       - PROTOCOL=${PROTOCOL}
       - API_PORT=${API_PORT}

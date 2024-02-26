@@ -34,7 +34,6 @@ func CORSMiddleware() gin.HandlerFunc {
 			allowedOrigin = ""
 		} else {
 			allowedOrigin = origins[0]
-			log.Printf("Request Origin: %v\n", allowedOrigin)
 			if allowedOrigin != environ.WebappUrl && allowedOrigin != environ.LandingPageUrl {
 				allowedOrigin = ""
 			}

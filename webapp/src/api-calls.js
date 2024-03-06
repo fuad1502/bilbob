@@ -209,6 +209,14 @@ export async function unfollow(username, follows) {
   return true;
 }
 
+export async function getFollowers(username) {
+  const [payload, status] = await genericGET('/users/' + username + '/followers', true);
+  if (status !== 200) {
+    return [[], false];
+  }
+  return [payload, true];
+}
+
 export async function unrequest(username, follows) {
   return await unfollow(username, follows);
 }

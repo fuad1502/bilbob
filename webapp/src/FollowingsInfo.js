@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getFollowings } from "./api-calls";
+import { getFollowers, getFollowings } from "./api-calls";
 import "./FollowingsInfo.css";
 
 export default function FollowingsInfo({ username }) {
@@ -10,11 +10,17 @@ export default function FollowingsInfo({ username }) {
 
   if (!loaded && !loading) {
     setLoading(true);
-    getFollowings(username).then(
+    const p1 = getFollowings(username);
+    const p2 = getFollowers(username);
+    Promise.all([p1, p2]).then(
       (result) => {
-        const [followings, ok] = result;
-        if (ok) {
+        const [followings, ok1] = result[0];
+        const [followers, ok2] = result[1];
+        if (ok1) {
           setNumOfFollowings(followings.length);
+        }
+        if (ok2) {
+          setNumOfFollowers(followers.length);
         }
         setLoading(false);
         setLoaded(true);

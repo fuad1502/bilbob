@@ -57,6 +57,8 @@ func main() {
 	router.GET("/users/:username/followings", routes.CreateGetFollowingsHandler(safeDB))
 	router.POST("/users/:username/followings", routes.CreatePostFollowingHandler(safeDB))
 	router.DELETE("/users/:username/followings/:followingUsername", routes.CreateDeleteFollowingHandler(safeDB))
+	// Followers resource endpoint
+	router.GET("/users/:username/followers", routes.CreateGetFollowersHandler(safeDB))
 	// Posts resource resource endpoint.
 	// parameters: username=$&includeFollowings=$.
 	router.GET("/posts", routes.CreateGetPostsHandler(safeDB))

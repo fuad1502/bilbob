@@ -193,6 +193,30 @@ func CreateGetFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	}
 }
 
+func CreateGetFollowersHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sessionId, err := c.Cookie("id")
+		if err != nil || !sessions.IsLoggedIn(sessionId) {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		requestedUser := c.Param("username")
+		query := `
+		SELECT username, state
+		FROM Followings
+		WHERE follows = $1
+		`
+		followers := make([]Following, 0)
+		if newFollowers, err := safeDB.Query(query, followers, requestedUser); err != nil {
+			c.Error(errors.New(err, c, "userFollowingsHandler"))
+			return
+		} else {
+			c.JSON(http.StatusOK, newFollowers)
+			return
+		}
+	}
+}
+
 func CreatePostFollowingHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		loggedInAs, ok := getUsername(c)

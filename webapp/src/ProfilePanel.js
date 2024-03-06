@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./ProfilePanel.css";
-import { getUserInfo, getFollowState, requestFollow, unfollow, unrequest, getPosts } from "./api-calls";
+import { getUserInfo, getFollowState, requestFollow, unfollow, unrequest, getPosts, getFollowings, getFollowers } from "./api-calls";
 import ProfileImage from "./ProfileImage";
 import FollowButton from "./FollowButton";
 import ProfileName from "./ProfileName";
@@ -13,6 +13,8 @@ export default function ProfilePanel({ username, selfUsername }) {
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [numOfFollowings, setNumOfFollowings] = useState(0);
+  const [numOfFollowers, setNumOfFollowers] = useState(0);
 
   if (loaded && username !== profileInfo.username) {
     setLoaded(false);
@@ -23,11 +25,15 @@ export default function ProfilePanel({ username, selfUsername }) {
     const p1 = getUserInfo(username);
     const p2 = getFollowState(selfUsername, username);
     const p3 = getPosts(username, false);
-    Promise.all([p1, p2, p3]).then(
+    const p4 = getFollowings(username);
+    const p5 = getFollowers(username);
+    Promise.all([p1, p2, p3, p4, p5]).then(
       (result) => {
         const [getProfile, ok1] = result[0];
         const [getFollows, ok2] = result[1];
         const [returnedPosts, ok3] = result[2];
+        const [returnedFollowings, ok4] = result[3];
+        const [returnedFollowers, ok5] = result[4];
         if (ok1) {
           setProfileInfo(getProfile);
         }
@@ -36,6 +42,12 @@ export default function ProfilePanel({ username, selfUsername }) {
         }
         if (ok3) {
           setPosts(returnedPosts);
+        }
+        if (ok4) {
+          setNumOfFollowings(returnedFollowings.length);
+        }
+        if (ok5) {
+          setNumOfFollowers(returnedFollowers.length);
         }
         setLoading(false);
         setLoaded(true);
@@ -57,10 +69,10 @@ export default function ProfilePanel({ username, selfUsername }) {
     <div id="profile-panel" className="main-panel">
       <ProfileImage key={username} username={username} selfUsername={selfUsername} />
       <ProfileName animal={profileInfo.animal} name={profileInfo.name} username={profileInfo.username} />
-      <div id="followings-info-container">
-        <FollowingsInfo username={username} />
-      </div>
       <FollowButton state={followState} onClick={handleClick} />
+      <div id="followings-info-container">
+        <FollowingsInfo numOfFollowings={numOfFollowings} numOfFollowers={numOfFollowers} />
+      </div>
       <Posts posts={posts} />
     </div>
   );

@@ -249,6 +249,14 @@ export async function setProfilePicture(username, file) {
   return true;
 }
 
+export async function getMostPopularUsers() {
+  const [payload, status] = await genericGET('/users?sortBy=popularity', true);
+  if (status !== 200) {
+    return [[], false];
+  }
+  return [payload, true];
+}
+
 /** GET all users that has a name or username matching the 'like' filter. 
   * @param {string} like name/username filter
   * @returns {Promise<Result<UserInfo>>} 

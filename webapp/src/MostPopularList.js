@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { getMostPopularUsers } from "./api-calls";
 import "./MostPopularList.css";
 
-export default function MostPopularList({ onSelectUser }) {
+export default function MostPopularList({ onSelectUser, inPanel }) {
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [mostPopularList, setMostPopularList] = useState([]);
@@ -30,7 +30,7 @@ export default function MostPopularList({ onSelectUser }) {
   });
 
   return (
-    <div id="most-popular-list">
+    <div id="most-popular-list" className={inPanel? "in-panel" : ""}>
       <p>Most popular members 👑</p>
       {element}
     </div>);

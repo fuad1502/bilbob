@@ -8,3 +8,9 @@
   position: initial;
   width: 100%;
 }
+
+@media (min-width: 55em) {
+  #discover-items-container.in-panel {
+    display: none;
+  }
+}

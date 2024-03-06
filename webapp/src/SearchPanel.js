@@ -7,7 +7,7 @@ export default function SearchPanel({ onSelectUser }) {
   return (
     <div id="discover-items-container" className="in-panel">
       <SearchBar onSelectUser={onSelectUser} inPanel={true} />
-      <MostPopularList onSelectUser={onSelectUser} />
+      <MostPopularList onSelectUser={onSelectUser} inPanel={true} />
     </div>
   )
 }

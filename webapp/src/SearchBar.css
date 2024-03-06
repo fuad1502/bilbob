@@ -9,12 +9,6 @@
   font-size: 1.2em;
 }
 
-@media (min-width: 55em) {
-  #search-bar.in-panel {
-    display: none;
-  }
-}
-
 #search-input.has-result {
   border-radius: 1em 1em 0 0;
 }

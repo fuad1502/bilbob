@@ -1,5 +1,5 @@
 #most-popular-list {
-  background: white;
+  background: papayawhip;
   padding: 1em;
   margin-top: 1em;
   font-size: 0.9em;
@@ -17,6 +17,9 @@
 
 .popular-list-item:hover {
   cursor: pointer;
-  background: gray;
-  color: white;
+  background: gold;
+}
+
+#most-popular-list.in-panel {
+  font-size: 1.2em;
 }

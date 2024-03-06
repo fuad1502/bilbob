@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import "./ProfilePanel.css";
-import { getUserInfo, getFollowState, requestFollow, unfollow, unrequest } from "./api-calls";
+import { getUserInfo, getFollowState, requestFollow, unfollow, unrequest, getPosts } from "./api-calls";
 import ProfileImage from "./ProfileImage";
 import FollowButton from "./FollowButton";
 import ProfileName from "./ProfileName";
+import Posts from "./Posts";
 
 export default function ProfilePanel({ username, selfUsername }) {
   const [profileInfo, setProfileInfo] = useState({});
   const [followState, setFollowState] = useState({});
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [posts, setPosts] = useState([]);
 
   if (loaded && username !== profileInfo.username) {
     setLoaded(false);
@@ -19,15 +21,20 @@ export default function ProfilePanel({ username, selfUsername }) {
     setLoading(true);
     const p1 = getUserInfo(username);
     const p2 = getFollowState(selfUsername, username);
-    Promise.all([p1, p2]).then(
+    const p3 = getPosts(username, false);
+    Promise.all([p1, p2, p3]).then(
       (result) => {
         const [getProfile, ok1] = result[0];
         const [getFollows, ok2] = result[1];
+        const [returnedPosts, ok3] = result[2];
         if (ok1) {
           setProfileInfo(getProfile);
         }
         if (ok2) {
           setFollowState(getFollows);
+        }
+        if (ok3) {
+          setPosts(returnedPosts);
         }
         setLoading(false);
         setLoaded(true);
@@ -50,6 +57,7 @@ export default function ProfilePanel({ username, selfUsername }) {
       <ProfileImage key={username} username={username} selfUsername={selfUsername} />
       <ProfileName animal={profileInfo.animal} name={profileInfo.name} username={profileInfo.username} />
       <FollowButton state={followState} onClick={handleClick} />
+      <Posts posts={posts} />
     </div>
   );
 }

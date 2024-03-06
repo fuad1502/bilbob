@@ -3,3 +3,8 @@
   padding: 1em;
   width: 15em;
 }
+
+#discover-items-container.in-panel {
+  position: initial;
+  width: 100%;
+}

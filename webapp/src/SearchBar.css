@@ -7,7 +7,6 @@
 
 #search-bar.in-panel #search-input {
   font-size: 1.2em;
-  margin-top: 1.5em;
 }
 
 @media (min-width: 55em) {

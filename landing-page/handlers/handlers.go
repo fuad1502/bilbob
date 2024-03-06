@@ -32,7 +32,7 @@ var (
 func LandingPageHandler(w http.ResponseWriter, r *http.Request) {
 	addCORSHeader(w, r)
 	// Get the requested file name.
-	fileName, _ := strings.CutPrefix(r.URL.Path, "/" + os.Getenv("LP_PATH"))
+	fileName, _ := strings.CutPrefix(r.URL.Path, "/"+os.Getenv("LP_PATH"))
 	// If no file is requested, then we will serve the index.html file instead
 	if fileName == "" {
 		fileName = "index.html"
@@ -80,6 +80,10 @@ func getFilePath(name string) (string, error) {
 	ext, err := getExtension(name)
 	if err != nil {
 		return "", err
+	}
+	if ext == "jpg" || ext == "png" {
+		path := "resources/images/" + name
+		return path, nil
 	}
 	path := "resources/" + ext + "/" + name
 	return path, nil

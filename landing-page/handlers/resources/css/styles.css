@@ -4,22 +4,33 @@ body {
 	font-family: Arial, sans-serif;
 }
 
+.short-stack-regular {
+	font-family: "Short Stack", cursive;
+	font-weight: 400;
+	font-style: normal;
+}
+
 main {
 	display: flex;
 	flex-wrap: wrap;
-	background-color: gray;
+	background: url(the_enchanted_gathering_by_fiulo_dgeug33.jpg);
+	background-size: cover;
+	background-position-x: right 500px;
 	height: 100vh;
 }
 
 #welcome {
 	flex: 10 20em;
-	background-color: lightblue;
+	background-color: rgba(58, 172, 198, 0.77);
+	color: white;
+	text-shadow: 0.2em 0.2em black;
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
 }
 
-#login, #signup {
+#login,
+#signup {
 	flex: 1 50em;
 	background-color: white;
 	display: flex;
@@ -27,11 +38,32 @@ main {
 	align-items: center;
 }
 
+@media (max-width: 70em) {
+	main {
+		background-size: 100vw;
+		background-position-x: 0;
+	}
+}
+
+@media (max-width: 51em) {
+	main {
+		background-size: 150vw;
+		background-position-x: right;
+	}
+}
+
 @media (max-width: 600px) {
+	main {
+		background-size: 250vw;
+		background-position-x: right -200px;
+	}
+
 	#welcome {
 		font-size: 0.8em;
 	}
-	#login, #signup {
+
+	#login,
+	#signup {
 		font-size: 0.7em;
 	}
 }
@@ -44,26 +76,28 @@ main {
 	display: none;
 }
 
-#welcome > div {
-	font-size: 2em;
+#welcome>div {
+	font-size: 2.5em;
 	padding: 1em;
 }
 
-#login > div {
+#login>div {
 	font-size: 1.5em;
 	padding: 1em;
 }
 
-#signup > div {
+#signup>div {
 	font-size: 1.2em;
 	padding: 1em;
 }
 
-#login ul, #signup ul {
+#login ul,
+#signup ul {
 	padding: 0;
 }
 
-#login li, #signup li {
+#login li,
+#signup li {
 	list-style: none;
 	padding: 0.5em 0;
 }
@@ -80,12 +114,14 @@ main {
 	text-align: right;
 }
 
-#login input, #signup input {
+#login input,
+#signup input {
 	font-size: 1em;
 	padding: 0.5em;
 }
 
-#login button, #signup button {
+#login button,
+#signup button {
 	font-size: 1em;
 	padding: 0.5em 1em;
 	display: block;
@@ -97,7 +133,8 @@ main {
 	padding: 0.5em;
 }
 
-#login p, #signup p {
+#login p,
+#signup p {
 	font-size: 0.8em;
 }
 

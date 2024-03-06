@@ -5,6 +5,7 @@
   border-radius: 50%;
   border: 0.5em solid lightblue;
   background: black;
+  cursor: pointer;
 }
 
 #profile-image {
@@ -27,7 +28,7 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  cursor: pointer;
+  pointer-events: none;
 }
 
 #profile-image #overlay[hidden] {

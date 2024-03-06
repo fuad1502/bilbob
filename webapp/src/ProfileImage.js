@@ -5,7 +5,7 @@ import { getProfilePicture, setProfilePicture } from "./api-calls";
 export default function ProfileImage({ username, selfUsername, inPost }) {
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [image, setImage] = useState(<img alt=""></img>);
+  const [image, setImage] = useState(<img alt="" onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}></img>);
   const [hideOverlay, setHideOverlay] = useState(true);
   const ref = useRef(null);
 
@@ -14,7 +14,7 @@ export default function ProfileImage({ username, selfUsername, inPost }) {
     getProfilePicture(username).then((result) => {
       const [url, ok] = result;
       if (ok) {
-        setImage(<img src={url} alt={"An image of " + username}></img>)
+        setImage(<img src={url} alt={"An image of " + username} onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}></img>)
       }
       setLoading(false);
       setLoaded(true);
@@ -32,11 +32,17 @@ export default function ProfileImage({ username, selfUsername, inPost }) {
   }
 
   function handleMouseEnter() {
-    setHideOverlay(false);
+    if (!inPost) {
+      console.log("Hey");
+      setHideOverlay(false);
+    }
   }
 
   function handleMouseLeave() {
-    setHideOverlay(true);
+    if (!inPost) {
+      console.log("Ho");
+      setHideOverlay(true);
+    }
   }
 
   const overlay =
@@ -46,14 +52,14 @@ export default function ProfileImage({ username, selfUsername, inPost }) {
 
   if (inPost || username !== selfUsername) {
     return (
-      <div id="profile-image" className={inPost ? "in-post" : ""} onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div id="profile-image" className={inPost ? "in-post" : ""} >
         {image}
         <input ref={ref} onChange={handleChange} type="file"></input>
       </div>
     );
   } else {
     return (
-      <div id="profile-image" className={inPost ? "in-post" : ""} onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div id="profile-image" className={inPost ? "in-post" : ""}>
         {image}
         {overlay}
         <input ref={ref} onChange={handleChange} type="file"></input>

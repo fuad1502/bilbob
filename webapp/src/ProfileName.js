@@ -14,9 +14,7 @@ export default function ProfileName({ name, username, animal }) {
 
   return (
     <div id="profile-name">
-      <div>
-        <span id="animal">{animal} </span><span id="name">{name} </span><span id="username">(@{username})</span>
-      </div>
+      <span id="animal">{animal} </span><span id="name">{name} </span><span id="username">(@{username})</span>
     </div>
   );
 }

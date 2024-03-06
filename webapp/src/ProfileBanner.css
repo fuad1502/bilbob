@@ -1,0 +1,10 @@
+#profile-banner {
+  width: 100%;
+  position: absolute;
+}
+
+#profile-banner img {
+  width: 100%;
+  height: 23em;
+  object-fit: cover;
+}

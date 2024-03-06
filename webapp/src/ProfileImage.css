@@ -11,6 +11,8 @@
 #profile-image {
   display: flex;
   justify-content: space-around;
+  position: relative;
+  margin-top: 1.5em;
 }
 
 #profile-image input {

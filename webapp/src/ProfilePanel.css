@@ -1,9 +1,16 @@
 #profile-panel {
-  padding-top: 1.5em;
   background: whitesmoke;
+  position: relative;
 }
 
 #followings-info-container {
+  display: flex;
+  justify-content: space-around;
+}
+
+#profile-name-container {
+  position: relative;
+  padding: 1em;
   display: flex;
   justify-content: space-around;
 }

@@ -1,11 +1,4 @@
 #profile-name {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  margin: 1em 0;
-}
-
-#profile-name div {
   padding: 1em;
   background: white;
   border-radius: 1em;

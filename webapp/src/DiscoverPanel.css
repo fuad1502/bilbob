@@ -1,3 +1,5 @@
-#discover-panel {
+#discover-items-container {
+  position: fixed;
   padding: 1em;
+  width: 15em;
 }

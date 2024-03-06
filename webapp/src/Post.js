@@ -2,13 +2,13 @@ import React from "react";
 import './Post.css'
 import ProfileImage from "./ProfileImage";
 
-export default function Post({ post }) {
+export default function Post({ post, onSelectUser }) {
   const postDateString = displayPostDate(post.postDate);
   return (
     <div id="post">
       <div id="post-header">
         <ProfileImage key={post.username} username={post.username} inPost={true} />
-        <span id="username">{'@' + post.username} · {postDateString}</span>
+        <span onClick={() => onSelectUser(post.username)} id="username">{'@' + post.username} · {postDateString}</span>
       </div>
       <p id="postText">{post.postText}</p>
     </div>

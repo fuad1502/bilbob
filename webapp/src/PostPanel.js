@@ -3,7 +3,7 @@ import PostSubmitForm from "./PostSubmitForm"
 import Posts from "./Posts"
 import { getPosts } from "./api-calls";
 
-export default function PostPanel({ username }) {
+export default function PostPanel({ username, onSelectUser }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +24,7 @@ export default function PostPanel({ username }) {
   return (
     <div id="post-panel" className="main-panel">
       <PostSubmitForm username={username} onSubmit={handleSubmit} />
-      <Posts posts={posts} />
+      <Posts posts={posts} onSelectUser={onSelectUser} />
     </div>
   )
 }

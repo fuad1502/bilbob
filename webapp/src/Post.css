@@ -20,3 +20,9 @@
   word-break: break-all;
   font-size: 1.2em;
 }
+
+#post #post-header span:hover {
+  cursor: pointer;
+  background: lightgray;
+  color: white;
+}

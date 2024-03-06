@@ -14,7 +14,7 @@ export default function App({ username }) {
 
   let component;
   switch (view) {
-    case "Home": component = <PostPanel username={username} />; break;
+    case "Home": component = <PostPanel username={username} onSelectUser={handleSelectUser} />; break;
     case "Profile": component = <ProfilePanel username={username} selfUsername={username} />; break;
     case "Market": component = <MarketPanel />; break;
     case "Search": component = <SearchPanel onSelectUser={handleSelectUser} />; break;

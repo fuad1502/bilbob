@@ -2,6 +2,7 @@ package routes
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -292,11 +293,30 @@ func CreateGetUsersHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		like = re.ReplaceAllString(like, "")
 		like = strings.ToLower(like)
 		like = "%" + like + "%"
-		query := `
-		SELECT username, name, animal
-		FROM Users
-		WHERE LOWER(name) LIKE $1 OR LOWER(username) LIKE $1
-		`
+		sortBy := c.Query("sortBy")
+		var query string
+		if sortBy == "popularity" {
+			like = "%"
+			query = `
+			SELECT username, name, animal
+			FROM Users AS U NATURAL JOIN (
+				SELECT follows AS username, COUNT(*) AS follower_count
+				FROM Followings
+				GROUP BY follows
+			) AS T
+			WHERE LOWER(name) LIKE $1 OR LOWER(username) LIKE $1
+			ORDER BY follower_count DESC
+			`
+		} else if sortBy == "" {
+			query = `
+			SELECT username, name, animal
+			FROM Users
+			WHERE LOWER(name) LIKE $1 OR LOWER(username) LIKE $1
+			`
+		} else {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
 		users := make([]dbs.User, 0)
 		if newUsers, err := safeDB.Query(query, users, like); err != nil {
 			c.Error(errors.New(err, c, "CreateGetUsersHandler"))

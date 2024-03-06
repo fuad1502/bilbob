@@ -2,7 +2,6 @@ package routes
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"

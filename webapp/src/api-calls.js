@@ -184,6 +184,14 @@ export async function getFollowState(username, follows) {
   return [payload.state, true];
 }
 
+export async function getFollowings(username) {
+  const [payload, status] = await genericGET('/users/' + username + '/followings', true);
+  if (status !== 200) {
+    return [[], false];
+  }
+  return [payload, true];
+}
+
 export async function requestFollow(username, follows) {
   const requestBody = JSON.stringify({ "username": follows, "state": "requested" });
   const [_, status] = await genericPOST("/users/" + username + "/followings", true, requestBody, 'application/json');

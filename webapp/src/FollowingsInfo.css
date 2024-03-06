@@ -1,0 +1,19 @@
+#followings-info div {
+  background: lightseagreen;
+  color: white;
+  padding: 1em;
+  width: 8em;
+  display: inline-block;
+}
+
+#followings-info-left {
+  margin-right: 0.2em;
+  border-top-left-radius: 1em;
+  border-bottom-left-radius: 1em;
+}
+
+#followings-info-right {
+  border-top-right-radius: 1em;
+  border-bottom-right-radius: 1em;
+  text-align: right;
+}

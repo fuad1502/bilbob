@@ -5,6 +5,7 @@ import ProfileImage from "./ProfileImage";
 import FollowButton from "./FollowButton";
 import ProfileName from "./ProfileName";
 import Posts from "./Posts";
+import FollowingsInfo from "./FollowingsInfo";
 
 export default function ProfilePanel({ username, selfUsername }) {
   const [profileInfo, setProfileInfo] = useState({});
@@ -56,6 +57,9 @@ export default function ProfilePanel({ username, selfUsername }) {
     <div id="profile-panel" className="main-panel">
       <ProfileImage key={username} username={username} selfUsername={selfUsername} />
       <ProfileName animal={profileInfo.animal} name={profileInfo.name} username={profileInfo.username} />
+      <div id="followings-info-container">
+        <FollowingsInfo username={username} />
+      </div>
       <FollowButton state={followState} onClick={handleClick} />
       <Posts posts={posts} />
     </div>

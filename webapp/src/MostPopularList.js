@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { getMostPopularUsers } from "./api-calls";
+import "./MostPopularList.css";
 
 export default function MostPopularList({ onSelectUser }) {
   const [loading, setLoading] = useState(false);
@@ -20,13 +21,17 @@ export default function MostPopularList({ onSelectUser }) {
     );
   }
 
-  const element = mostPopularList.map((user) => {
+  const element = mostPopularList.map((user, i) => {
     return (
       <div className="popular-list-item" key={user.username} onClick={() => onSelectUser(user.username)}>
-        {user.name} (@{user.username})
+        {i+1}. {user.name} (@{user.username})
       </div>
     );
   });
 
-  return (<div id="most-popular-list">{element}</div>);
+  return (
+    <div id="most-popular-list">
+      <p>Most popular members 👑</p>
+      {element}
+    </div>);
 }

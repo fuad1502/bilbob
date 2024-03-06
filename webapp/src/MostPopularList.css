@@ -1,0 +1,22 @@
+#most-popular-list {
+  background: white;
+  padding: 1em;
+  margin-top: 1em;
+  font-size: 0.9em;
+}
+
+#most-popular-list p {
+  margin: 0 0 1em 0em;
+  font-weight: bold;
+}
+
+.popular-list-item {
+  padding: 0.2em;
+  border-bottom: 0.1em solid black;
+}
+
+.popular-list-item:hover {
+  cursor: pointer;
+  background: gray;
+  color: white;
+}

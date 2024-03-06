@@ -7,8 +7,8 @@ export default function ProfileName({ name, username, animal }) {
     case "cat": animal = "🐱"; break;
     case "dog": animal = "🐶"; break;
     case "bird": animal = "🐦"; break;
-    case "fish": animal = "🐟"; break;
-    case "reptile": animal = "🐢"; break;
+    case "fish": animal = "🐠"; break;
+    case "reptile": animal = "🐍"; break;
     default: animal = "🦖";
   }
 

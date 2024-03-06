@@ -39,6 +39,7 @@
 
 #profile-image.in-post {
   display: inline-block;
+  margin-top: unset;
 }
 
 #profile-image.in-post img {

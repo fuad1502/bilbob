@@ -2,7 +2,7 @@
   background: lightblue;
   color: white;
   padding: 1em;
-  width: 8em;
+  max-width: 80%;
   display: inline-block;
 }
 

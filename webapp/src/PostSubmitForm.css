@@ -1,7 +1,7 @@
 #post-submit-form {
   padding: 1em 2em;
   border-radius: 1em;
-  background: #8bbdcc;
+  background: linear-gradient(#8cb5d9, #84cfd3);
   color: white;
   margin: 1em 0;
 }

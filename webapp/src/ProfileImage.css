@@ -3,7 +3,7 @@
   height: 15em;
   object-fit: cover;
   border-radius: 50%;
-  border: 0.5em solid lightblue;
+  border: 0.5em solid white;
   background: black;
   cursor: pointer;
 }

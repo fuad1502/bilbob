@@ -22,6 +22,7 @@ export default function PostPanel({ username, onSelectUser }) {
   }, [loading]);
 
   function handleSubmit() {
+    setPosts([]);
     setLoading(false);
   }
 

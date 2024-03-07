@@ -99,7 +99,7 @@ func (safeDB *SafeDB) QueryRow(query string, row any, args ...any) error {
 	}
 }
 
-func (safeDB *SafeDB) Query(query string, rows any, args ...any) (any, error) {
+func (safeDB *SafeDB) Query(query string, rows any, maxRows int, args ...any) (any, error) {
 	t := reflect.TypeOf(rows)
 	if t.Kind() != reflect.Slice {
 		return rows, fmt.Errorf("dbs.Query: rows should be of type slice")
@@ -124,7 +124,7 @@ func (safeDB *SafeDB) Query(query string, rows any, args ...any) (any, error) {
 			param[i] = row.Field(i).Addr().Interface()
 		}
 		count := 0
-		for sqlRows.Next() {
+		for sqlRows.Next() && (maxRows < 0 || count < maxRows) {
 			sqlRows.Scan(param...)
 			if count >= rowsRefl.Len() {
 				rowsRefl = reflect.Append(rowsRefl, row)
@@ -136,7 +136,7 @@ func (safeDB *SafeDB) Query(query string, rows any, args ...any) (any, error) {
 	} else {
 		row := reflect.Indirect(reflect.New(t))
 		count := 0
-		for sqlRows.Next() {
+		for sqlRows.Next() && (maxRows < 0 || count < maxRows) {
 			sqlRows.Scan(row.Addr().Interface())
 			if count >= rowsRefl.Len() {
 				rowsRefl = reflect.Append(rowsRefl, row)

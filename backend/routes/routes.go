@@ -182,7 +182,8 @@ func CreateGetFollowingsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			WHERE username = $1
 			`
 			followings := make([]Following, 0)
-			if newFollowings, err := safeDB.Query(query, followings, requestedUser); err != nil {
+			maxRows := -1
+			if newFollowings, err := safeDB.Query(query, followings, maxRows, requestedUser); err != nil {
 				c.Error(errors.New(err, c, "userFollowingsHandler"))
 				return
 			} else {
@@ -207,7 +208,8 @@ func CreateGetFollowersHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		WHERE follows = $1
 		`
 		followers := make([]Following, 0)
-		if newFollowers, err := safeDB.Query(query, followers, requestedUser); err != nil {
+		maxRows := -1
+		if newFollowers, err := safeDB.Query(query, followers, maxRows, requestedUser); err != nil {
 			c.Error(errors.New(err, c, "userFollowingsHandler"))
 			return
 		} else {
@@ -317,7 +319,8 @@ func CreateGetUsersHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			return
 		}
 		users := make([]dbs.User, 0)
-		if newUsers, err := safeDB.Query(query, users, like); err != nil {
+		maxRows := -1
+		if newUsers, err := safeDB.Query(query, users, maxRows, like); err != nil {
 			c.Error(errors.New(err, c, "CreateGetUsersHandler"))
 			return
 		} else {
@@ -364,6 +367,17 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 		}
 		requestedUser := c.Query("username")
 		includeFollowings := c.Query("includeFollowings")
+		var fromTimestamp time.Time
+		fromTimestampQuery := c.Query("fromTimestamp")
+		if fromTimestampQuery == "" {
+			fromTimestamp = time.Now()
+		} else {
+			fromTimestamp, err = time.Parse(time.RFC3339Nano, fromTimestampQuery)
+			if err != nil {
+				c.AbortWithStatus(http.StatusBadRequest)
+				return
+			}
+		}
 		var query string
 		if includeFollowings == "true" {
 			query = `
@@ -377,20 +391,22 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			FROM Posts AS P JOIN Followings AS F
 			ON P.username = F.follows
 			WHERE F.username = $1) AS T
+			WHERE T.post_date < $2
 			ORDER BY T.post_date DESC
 			`
-		} else if includeFollowings == "false" {
+		} else if includeFollowings == "" || includeFollowings == "false" {
 			query = `
 			SELECT username, post_text, post_date
 			FROM Posts
-			WHERE username = $1
+			WHERE username = $1 AND post_date < $2
 			ORDER BY post_date DESC
 			`
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}
 		posts := make([]Post, 0)
-		if newPosts, err := safeDB.Query(query, posts, requestedUser); err != nil {
+		maxRows := 5
+		if newPosts, err := safeDB.Query(query, posts, maxRows, requestedUser, fromTimestamp); err != nil {
 			c.Error(errors.New(err, c, "CreateGetPostsHandler"))
 			return
 		} else {

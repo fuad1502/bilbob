@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"sync"
 )
@@ -43,7 +42,6 @@ func (safeDB *SafeDB) Close() error {
 	safeDB.lock.Lock()
 	defer safeDB.lock.Unlock()
 	for query := range safeDB.stmts {
-		log.Printf("Closed query = %v\n", query)
 		safeDB.stmts[query].Close()
 	}
 	return safeDB.db.Close()
@@ -78,7 +76,6 @@ func (safeDB *SafeDB) getStmt(query string) (*sql.Stmt, error) {
 		return nil, err
 	} else {
 		safeDB.stmts[query] = stmt
-		log.Printf("Inserted query = %v\n", query)
 		return stmt, nil
 	}
 }

@@ -10,9 +10,13 @@ export default function PostPanel({ username, onSelectUser }) {
   useEffect(() => {
     if (!loading) {
       setLoading(true);
-      getPosts(username, true).then((result) => {
+      let fromTimestamp = "";
+      if (posts.length > 0) {
+        fromTimestamp = posts[posts.length - 1].postDate;
+      }
+      getPosts(username, true, fromTimestamp).then((result) => {
         const [returnedPosts, _] = result;
-        setPosts(returnedPosts);
+        setPosts(posts.concat(returnedPosts));
       });
     }
   }, [loading]);
@@ -20,6 +24,12 @@ export default function PostPanel({ username, onSelectUser }) {
   function handleSubmit() {
     setLoading(false);
   }
+
+  window.onscroll = function(_e) {
+    if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+      setLoading(false);
+    }
+  };
 
   return (
     <div id="post-panel" className="main-panel">

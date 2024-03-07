@@ -131,8 +131,8 @@ export async function postPost(username, postText) {
  * @returns {Promise<Result<[Post]>>}
  * a Promise for an array of Post objects inside a Result struct.
  */
-export async function getPosts(username, includeFollowings) {
-  const [payload, status] = await genericGET('/posts?username=' + username + '&includeFollowings=' + includeFollowings.toString(), true);
+export async function getPosts(username, includeFollowings, fromTimestamp) {
+  const [payload, status] = await genericGET('/posts?username=' + username + '&includeFollowings=' + includeFollowings.toString() + '&fromTimestamp=' + fromTimestamp, true);
   if (status !== 200) {
     return [[], false];
   }

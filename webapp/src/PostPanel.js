@@ -27,7 +27,7 @@ export default function PostPanel({ username, onSelectUser }) {
   }
 
   window.onscroll = function(_e) {
-    if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+    if ((window.innerHeight * 1.2 + Math.round(window.scrollY)) >= document.body.offsetHeight) {
       setLoading(false);
     }
   };

@@ -73,7 +73,7 @@ export default function ProfilePanel({ username, selfUsername }) {
   }
 
   window.onscroll = function(_e) {
-    if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+    if ((window.innerHeight * 1.2 + Math.round(window.scrollY)) >= document.body.offsetHeight) {
       setLoadedPosts(false);
     }
   };

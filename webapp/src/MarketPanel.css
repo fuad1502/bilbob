@@ -8,4 +8,7 @@
 
 #market-panel img {
   width: 100%;
+  max-width: 25em;
+  margin: auto;
+  display: block;
 }

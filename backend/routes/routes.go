@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -318,8 +319,16 @@ func CreateGetUsersHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		users := make([]dbs.User, 0)
+		maxRowsQuery := c.Query("maxRows")
 		maxRows := -1
+		if maxRowsQuery != "" {
+			maxRows, err = strconv.Atoi(maxRowsQuery)
+			if err != nil {
+				c.AbortWithStatus(http.StatusBadRequest)
+				return
+			}
+		}
+		users := make([]dbs.User, 0)
 		if newUsers, err := safeDB.Query(query, users, maxRows, like); err != nil {
 			c.Error(errors.New(err, c, "CreateGetUsersHandler"))
 			return

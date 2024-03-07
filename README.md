@@ -76,7 +76,7 @@ By default, the database and assets will persist on termination using [volumes](
 
 ### Development / Debug Build
 
-The previous build step will spin a self-contained container. It does not use [bind mounts](https://docs.docker.com/storage/bind-mounts/). For front-end development or debugging, it is better if changes to local static pages / files are automatically reflected to the running container. Other times, you might only want to run the API server and test it independently. For this purposes, execute the following commands instead:
+The previous build step will spin off a self-contained container. It does not use [bind mounts](https://docs.docker.com/storage/bind-mounts/). For front-end development or debugging, it is better if changes to local static pages / files are automatically reflected to the running container. Other times, you might only want to run the API server and test it independently. For this purposes, execute the following commands instead:
 
 ```sh
 # git clone https://github.com/fuad1502/bilbob.git

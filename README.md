@@ -97,3 +97,18 @@ npm start
 Now, changes to `landing-page/handlers/resources` and `webapp/src` will be reflected immediately. Note that you might need to modify `backend/.env`, `landing-page/.env`, and `webapp/.env` as well. By default it is configured to run locally.
 
 ## Security & privacy concerns
+
+- Passwords are **salted** with a random 16 byte hex string (generated with [`crypto/rand`](https://pkg.go.dev/crypto/rand) package) on a per user basis and **hashed** with [`Argon2id`](https://pkg.go.dev/golang.org/x/crypto/argon2). Only the salt and hash are stored in the database.
+- As of now, connections are made through an **unsecure HTTP channel**. Therefore, despite the previous point, I advise against entering passwords that you use elsewhere.
+- If you are still hesitant to sign up, but would like to try out **Bilbob**, I recommend loging in with any of the following username / password combination:
+  | username      | password    |
+  | ------------- | ----------- |
+  | scoobydoobie  | Bilbob123!  |
+  | dorylovesfish | Bilbob123!  |
+  | mordoguy      | Bilbob123!  |
+  | rrrango       | Bilbob123!  |
+  | billyboy      | Bilbob123!  |
+  | blebob        | Bilbob123!  |
+- Session management use **Cookies** (only) as session identifiers (randomly generated) that's assigned after logging in with your credentials. Session states are stored in our server.
+- Profile images and posts are **not encrypted** before being stored. Therefore, I advise against uploading and posting sensitive images and information respectively.
+- As of now, posts **cannot be deleted**. Contact me if you accidentally posted a sensitive information required deletion.

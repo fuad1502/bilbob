@@ -16,15 +16,15 @@ On a more serious note, I only did this project to try out backend development. 
 
 ### Post
 
-<img src=https://github.com/fuad1502/bilbob/blob/master/doc/posts.gif width=50%>
+<img src=https://github.com/fuad1502/bilbob/blob/master/doc/posts.gif width=500px max-width=100%>
 
 ### Search & follow friends
 
-<img src=https://github.com/fuad1502/bilbob/blob/master/doc/discover-and-follow.gif width=50%>
+<img src=https://github.com/fuad1502/bilbob/blob/master/doc/discover-and-follow.gif width=500px max-width=100%>
 
 ### Set a profile picture
 
-<img src=https://github.com/fuad1502/bilbob/blob/master/doc/profile-picture.gif width=50%>
+<img src=https://github.com/fuad1502/bilbob/blob/master/doc/profile-picture.gif width=500px max-width=100%>
 
 ### Looks great on all device
 

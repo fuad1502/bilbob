@@ -250,7 +250,7 @@ export async function setProfilePicture(username, file) {
 }
 
 export async function getMostPopularUsers() {
-  const [payload, status] = await genericGET('/users?sortBy=popularity', true);
+  const [payload, status] = await genericGET('/users?sortBy=popularity&maxRows=5', true);
   if (status !== 200) {
     return [[], false];
   }
@@ -263,7 +263,7 @@ export async function getMostPopularUsers() {
   * a Promise for an array of UserInfo object in a Result struct. 
   */
 export async function getUsers(like) {
-  const [payload, status] = await genericGET('/users?like=' + like, true);
+  const [payload, status] = await genericGET('/users?like=' + like + '&maxRows=10', true);
   if (status !== 200) {
     return [[], false];
   }

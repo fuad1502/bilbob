@@ -1,0 +1,11 @@
+#market-panel {
+  background: white;
+}
+
+#market-panel h2 {
+  text-align: center;
+}
+
+#market-panel img {
+  width: 100%;
+}

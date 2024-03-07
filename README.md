@@ -2,7 +2,7 @@
 
 # Bilbob 
 
-**Bilbob** is a social media for your pets! All animals are welcomed! 🐱🐶🐟🐦🐢 All requests are served by our **Gopher**! 🦦 Free yourselves from the negativity of mainstream social media! 🤩
+**Bilbob** is a social media for your pets! All animals are welcomed! 🐱🐶🐟🐦🐍 All requests are served by our **Gopher**! 🦦 Free yourselves from the negativity of mainstream social media! 🤩
 
 On a more serious note, I only did this project to try out end-to-end web development. Here is a list of technologies used to develop this project:
 - [**Go**](https://go.dev) 🦦 with **net/http** and [**Gin**](https://github.com/gin-gonic/gin) web framework 🍸

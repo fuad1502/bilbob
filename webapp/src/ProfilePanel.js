@@ -24,6 +24,7 @@ export default function ProfilePanel({ username, selfUsername }) {
   }
 
   if (loadedPosts && username !== profileInfo.username) {
+    setPosts([]);
     setLoadedPosts(false);
   }
 

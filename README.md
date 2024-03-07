@@ -10,7 +10,7 @@ On a more serious note, I only did this project to try out end-to-end web develo
 - [**PostgresSQL**](https://www.postgresql.org/) 🐘
 - [**Podman**](https://podman.io/) 🦭 / [**Docker**](https://www.docker.com/) 🐋
 
-**Bilbob** is live at [bilbob.fuadismail.com](http://bilbob.fuadismail.com). See the [Security & privacy concerns](#security-&-privacy-concerns) below to understand the safety concerns of your data.
+**Bilbob** is live at [bilbob.fuadismail.com](http://bilbob.fuadismail.com) (running on [**DigitalOcean's**](https://www.digitalocean.com/) droplet). See the [Security & privacy concerns](#security-&-privacy-concerns) below to understand the safety concerns of your data.
 
 *PS. Sorry if the emojis are a bit annoying* 😅
 

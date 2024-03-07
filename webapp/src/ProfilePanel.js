@@ -21,12 +21,9 @@ export default function ProfilePanel({ username, selfUsername }) {
   const [numOfFollowers, setNumOfFollowers] = useState(0);
 
   if (loaded && username !== profileInfo.username) {
-    setLoaded(false);
-  }
-
-  if (loadedPosts && username !== profileInfo.username) {
     setPosts([]);
     setBottomed(false);
+    setLoaded(false);
     setLoadedPosts(false);
   }
 

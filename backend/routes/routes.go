@@ -414,7 +414,7 @@ func CreateGetPostsHandler(safeDB *dbs.SafeDB) gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusBadRequest)
 		}
 		posts := make([]Post, 0)
-		maxRows := 5
+		maxRows := 10
 		if newPosts, err := safeDB.Query(query, posts, maxRows, requestedUser, fromTimestamp); err != nil {
 			c.Error(errors.New(err, c, "CreateGetPostsHandler"))
 			return

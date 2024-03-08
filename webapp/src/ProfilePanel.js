@@ -15,16 +15,15 @@ export default function ProfilePanel({ username, selfUsername }) {
   const [loaded, setLoaded] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadedPosts, setLoadedPosts] = useState(false);
+  const [bottomed, setBottomed] = useState(false);
   const [posts, setPosts] = useState([]);
   const [numOfFollowings, setNumOfFollowings] = useState(0);
   const [numOfFollowers, setNumOfFollowers] = useState(0);
 
   if (loaded && username !== profileInfo.username) {
-    setLoaded(false);
-  }
-
-  if (loadedPosts && username !== profileInfo.username) {
     setPosts([]);
+    setBottomed(false);
+    setLoaded(false);
     setLoadedPosts(false);
   }
 
@@ -58,25 +57,33 @@ export default function ProfilePanel({ username, selfUsername }) {
     );
   }
 
-  if (!loadedPosts && !loadingPosts) {
+  if (!bottomed && !loadedPosts && !loadingPosts) {
     setLoadingPosts(true);
     let fromTimestamp = "";
     if (posts.length > 0) {
       fromTimestamp = posts[posts.length - 1].postDate;
     }
     getPosts(username, false, fromTimestamp).then((result) => {
-      const [returnedPosts, _] = result;
-      setPosts(posts.concat(returnedPosts));
+      const [returnedPosts, ok] = result;
+      if (ok) {
+        if (returnedPosts.length > 0) {
+          setPosts(posts.concat(returnedPosts));
+        } else {
+          setBottomed(true);
+        }
+      }
       setLoadingPosts(false);
       setLoadedPosts(true);
     });
   }
 
-  window.onscroll = function(_e) {
-    if ((window.innerHeight * 1.2 + Math.round(window.scrollY)) >= document.body.offsetHeight) {
-      setLoadedPosts(false);
-    }
-  };
+  if (!bottomed) {
+    window.onscroll = function(_e) {
+      if ((window.innerHeight * 1.2 + Math.round(window.scrollY)) >= document.body.offsetHeight) {
+        setLoadedPosts(false);
+      }
+    };
+  }
 
   function handleClick() {
     if (followState === "no") {

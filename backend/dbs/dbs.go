@@ -39,6 +39,11 @@ func ConnectPGDB(host string, user string, password string, dbname string) (*Saf
 }
 
 func (safeDB *SafeDB) Close() error {
+	safeDB.lock.Lock()
+	defer safeDB.lock.Unlock()
+	for query := range safeDB.stmts {
+		safeDB.stmts[query].Close()
+	}
 	return safeDB.db.Close()
 }
 
@@ -67,6 +72,7 @@ func (safeDB *SafeDB) getStmt(query string) (*sql.Stmt, error) {
 		return stmt, nil
 	}
 	if stmt, err := safeDB.db.Prepare(query); err != nil {
+		stmt.Close()
 		return nil, err
 	} else {
 		safeDB.stmts[query] = stmt

@@ -131,7 +131,9 @@ func (safeDB *SafeDB) Query(query string, rows any, maxRows int, args ...any) (a
 		}
 		count := 0
 		for sqlRows.Next() && (maxRows < 0 || count < maxRows) {
-			sqlRows.Scan(param...)
+			if err := sqlRows.Scan(param...); err != nil {
+				return rows, fmt.Errorf("dbs.QueryRow: %v", err)
+			}
 			if count >= rowsRefl.Len() {
 				rowsRefl = reflect.Append(rowsRefl, row)
 			} else {
@@ -143,7 +145,9 @@ func (safeDB *SafeDB) Query(query string, rows any, maxRows int, args ...any) (a
 		row := reflect.Indirect(reflect.New(t))
 		count := 0
 		for sqlRows.Next() && (maxRows < 0 || count < maxRows) {
-			sqlRows.Scan(row.Addr().Interface())
+			if err := sqlRows.Scan(row.Addr().Interface()); err != nil {
+				return rows, fmt.Errorf("dbs.QueryRow: %v", err)
+			}
 			if count >= rowsRefl.Len() {
 				rowsRefl = reflect.Append(rowsRefl, row)
 			} else {
